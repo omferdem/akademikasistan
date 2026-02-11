@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Akademik Asistan V2</title>
+    <title>Akademik Asistan V2.1</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -220,17 +220,17 @@
         const DAYS_TR = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
 
         const App = () => {
-            // STATE
-            const [user, setUser] = useState(() => safeGet('user_v45', null));
-            const [tasks, setTasks] = useState(() => safeGet('tasks_v45', []));
-            const [notes, setNotes] = useState(() => safeGet('notes_v45', []));
-            const [schedule, setSchedule] = useState(() => safeGet('schedule_v45', {
+            // STATE - v46 anahtarı ile taze başlangıç (Crash Fix)
+            const [user, setUser] = useState(() => safeGet('user_v46', null));
+            const [tasks, setTasks] = useState(() => safeGet('tasks_v46', []));
+            const [notes, setNotes] = useState(() => safeGet('notes_v46', []));
+            const [schedule, setSchedule] = useState(() => safeGet('schedule_v46', {
                 Pazartesi: Array(13).fill(null), Sali: Array(13).fill(null), Carsamba: Array(13).fill(null), Persembe: Array(13).fill(null), Cuma: Array(13).fill(null), Cumartesi: Array(13).fill(null), Pazar: Array(13).fill(null)
             }));
-            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_v45', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
-            const [customScores, setCustomScores] = useState(() => safeGet('scores_v45', [{ id: 1, name: "Makale", value: 20, count: 0 }]));
-            const [targetScore, setTargetScore] = useState(() => safeGet('target_score_v45', 100));
-            const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v45', ACADEMIC_DATA['default']));
+            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_v46', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
+            const [customScores, setCustomScores] = useState(() => safeGet('scores_v46', [{ id: 1, name: "Makale", value: 20, count: 0 }]));
+            const [targetScore, setTargetScore] = useState(() => safeGet('target_score_v46', 100));
+            const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v46', ACADEMIC_DATA['default']));
             
             const [view, setView] = useState("flow");
             
@@ -249,7 +249,7 @@
             const [recurringWeeks, setRecurringWeeks] = useState(14);
             const [editingLesson, setEditingLesson] = useState(null);
             
-            // YENİ: Manuel ders ekleme state'leri
+            // Manuel ders ekleme state'leri
             const [newLesson, setNewLesson] = useState({
                 name: "",
                 startTime: "09:00",
@@ -262,7 +262,6 @@
             const [prayerTimes, setPrayerTimes] = useState(null);
             const [progress, setProgress] = useState(0);
             const [currentTimeStr, setCurrentTimeStr] = useState("00:00");
-            const [timeRange, setTimeRange] = useState({ start: 6, end: 23 });
             const [cursorColor, setCursorColor] = useState("bg-emerald-500 shadow-[0_0_10px_#10b981]");
             const [pomodoro, setPomodoro] = useState({ active: false, time: 25 * 60 });
             
@@ -270,24 +269,18 @@
             const audioRef = useRef(null);
             const [currentTime, setCurrentTime] = useState(new Date());
 
-            // SAVE
-            useEffect(() => { localStorage.setItem('user_v45', JSON.stringify(user)); }, [user]);
-            useEffect(() => { localStorage.setItem('tasks_v45', JSON.stringify(tasks)); }, [tasks]);
-            useEffect(() => { localStorage.setItem('schedule_v45', JSON.stringify(schedule)); }, [schedule]);
-            useEffect(() => { localStorage.setItem('notes_v45', JSON.stringify(notes)); }, [notes]);
-            useEffect(() => { localStorage.setItem('calendar_v45', JSON.stringify(calendarEvents)); }, [calendarEvents]);
-            useEffect(() => { localStorage.setItem('scores_v45', JSON.stringify(customScores)); }, [customScores]);
-            useEffect(() => { localStorage.setItem('target_score_v45', JSON.stringify(targetScore)); }, [targetScore]);
-            useEffect(() => { localStorage.setItem('timeslots_v45', JSON.stringify(timeSlots)); }, [timeSlots]);
+            // SAVE - v46
+            useEffect(() => { localStorage.setItem('user_v46', JSON.stringify(user)); }, [user]);
+            useEffect(() => { localStorage.setItem('tasks_v46', JSON.stringify(tasks)); }, [tasks]);
+            useEffect(() => { localStorage.setItem('schedule_v46', JSON.stringify(schedule)); }, [schedule]);
+            useEffect(() => { localStorage.setItem('notes_v46', JSON.stringify(notes)); }, [notes]);
+            useEffect(() => { localStorage.setItem('calendar_v46', JSON.stringify(calendarEvents)); }, [calendarEvents]);
+            useEffect(() => { localStorage.setItem('scores_v46', JSON.stringify(customScores)); }, [customScores]);
+            useEffect(() => { localStorage.setItem('target_score_v46', JSON.stringify(targetScore)); }, [targetScore]);
+            useEffect(() => { localStorage.setItem('timeslots_v46', JSON.stringify(timeSlots)); }, [timeSlots]);
 
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
             const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"]; return map[d.getDay()]; };
-            const getUrgencyStatus = (taskTimeStr) => {
-                const now = new Date(); const currentMinutes = now.getHours() * 60 + now.getMinutes(); const eventMinutes = getMinutes(taskTimeStr);
-                if (currentMinutes > eventMinutes) return 'past';
-                const diff = eventMinutes - currentMinutes;
-                if (diff <= 60) return 'urgent'; if (diff <= 120) return 'soon'; return 'safe';
-            };
 
             const checkConflict = (date, time) => {
                 const taskExists = tasks.find(t => t.date === date && t.time === time && t.id !== editingTask?.id);
@@ -331,11 +324,12 @@
                 return list.sort((a, b) => a.sortTime.localeCompare(b.sortTime));
             }, [tasks, prayerTimes, user, schedule, timeSlots]);
 
-            // PANORAMIC TIMELINE
+            // PANORAMIC TIMELINE - DEĞİŞİKLİK: 6 Saat Geri / 18 Saat İleri
             const getTimelineEvents = useCallback(() => {
                 const now = new Date();
                 const nowMinTotal = now.getHours() * 60 + now.getMinutes();
-                const windowStart = nowMinTotal - (12 * 60); const windowEnd = nowMinTotal + (12 * 60);
+                const windowStart = nowMinTotal - (6 * 60); 
+                const windowEnd = nowMinTotal + (18 * 60);
                 let events = [];
                 tasks.forEach(t => {
                     const tDate = new Date(t.date); const tMin = getMinutes(t.time); const diffDays = Math.round((tDate.setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000*60*60*24));
@@ -373,11 +367,11 @@
                 return events.sort((a, b) => a.relativeMin - b.relativeMin);
             }, [tasks, prayerTimes, user, schedule, timeSlots]);
 
-            // LIST VIEW
+            // LIST VIEW - DEĞİŞİKLİK: Geçmiş eventleri de dahil et (sönük göstermek için)
              const getTimelineList = () => {
                 const events = getTimelineEvents();
-                const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-                return events.filter(e => e.relativeMin >= nowMin).slice(0, 20); 
+                // Eski filtreyi kaldırdım, sadece sayı limiti koydum
+                return events.slice(0, 25); 
             };
 
             useEffect(() => {
@@ -504,7 +498,6 @@
                 setSchedule(newSchedule); setActiveModal(null); 
             };
 
-            // YENİ DERS EKLEME FONKSİYONU
             const handleAddNewLesson = () => {
                 if (!newLesson.name || !newLesson.startTime || !newLesson.endTime || newLesson.days.length === 0) {
                     alert("Lütfen tüm alanları doldurun ve en az bir gün seçin!");
@@ -524,7 +517,6 @@
                 const newSchedule = { ...schedule };
 
                 newLesson.days.forEach(day => {
-                    // Başlangıç slotunu bul
                     let startSlotIndex = -1;
                     for (let i = 0; i < timeSlots.length; i++) {
                         if (getMinutes(timeSlots[i]) >= startMin) {
@@ -538,7 +530,6 @@
                         return;
                     }
 
-                    // Dersi yerleştir
                     for (let i = 0; i < durationHours && (startSlotIndex + i) < timeSlots.length; i++) {
                         newSchedule[day][startSlotIndex + i] = {
                             name: newLesson.name,
@@ -574,13 +565,22 @@
             };
 
             const renderTimelineBar = () => {
-                const events = getTimelineEvents(); const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes(); const windowStart = nowMin - (12 * 60); const windowTotal = 1440; 
+                const events = getTimelineEvents(); 
+                const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes(); 
+                
+                // DEĞİŞİKLİK: 6 Saat Geri / 18 Saat İleri
+                const windowStart = nowMin - (6 * 60); 
+                const windowTotal = 1440; // 24 saat
+
                 return (
                     <div className="h-16 relative w-full overflow-hidden flex items-center bg-slate-900 rounded-xl border border-slate-700 shadow-inner">
                         <div className="absolute top-1/2 left-0 w-full h-px bg-slate-600/50"></div>
-                        <div className={`absolute top-0 bottom-0 w-1 z-30 left-1/2 transition-colors duration-500 ${cursorColor}`}></div>
+                        {/* DEĞİŞİKLİK: İmleç %25 konumunda (6/24 = 0.25) */}
+                        <div className={`absolute top-0 bottom-0 w-1 z-30 left-[25%] transition-colors duration-500 ${cursorColor}`}></div>
                         {events.map(ev => {
-                            let diff = ev.relativeMin - nowMin; const positionPct = 50 + (diff / (12*60)) * 50; 
+                            let diff = ev.relativeMin - windowStart; 
+                            const positionPct = (diff / windowTotal) * 100;
+                            
                             if (positionPct < 0 || positionPct > 100) return null;
                             
                             let nodeColor = "bg-gray-500"; 
@@ -592,7 +592,7 @@
                                 else if (ev.displayType === 'class') nodeColor = "bg-emerald-500 w-3 h-3 rounded-full border-2 border-slate-900";
                             }
 
-                            let pulseClass = ""; if (diff > 0 && diff < 120 && ev.displayType !== 'prayer') pulseClass = "animate-pulse scale-125"; 
+                            let pulseClass = ""; if ((ev.relativeMin - nowMin) > 0 && (ev.relativeMin - nowMin) < 120 && ev.displayType !== 'prayer') pulseClass = "animate-pulse scale-125"; 
                             return (<div key={ev.id} className={`absolute top-1/2 -translate-y-1/2 z-20 cursor-pointer ${nodeColor} ${pulseClass}`} style={{left: `${positionPct}%`}} onClick={() => { if(ev.displayType!=='prayer'&&ev.displayType!=='class') openEditTask(ev); else setSelectedNode(ev); }}></div>);
                         })}
                     </div>
@@ -607,7 +607,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V2 • Zaphyros</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V2.1 • Zaphyros</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -644,7 +644,7 @@
                             <button onClick={() => setActiveModal('settings')} className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-blue-400"><i className="fas fa-cog text-xs"></i></button>
                         </div>
                         <div className="mt-6 relative">
-                            <div className="flex justify-between text-[10px] text-blue-200 font-mono mb-1"><span>-12s</span><span className="animate-pulse text-white font-bold">{currentTimeStr}</span><span>+12s</span></div>
+                            <div className="flex justify-between text-[10px] text-blue-200 font-mono mb-1"><span>-6s</span><span className="animate-pulse text-white font-bold">{currentTimeStr}</span><span>+18s</span></div>
                             {renderTimelineBar()}
                             {selectedNode && (<div className="mt-2 bg-slate-800 p-2 rounded border border-slate-600 text-xs flex justify-between items-center animate-enter">
                                 <div>
@@ -670,8 +670,13 @@
                                         else if (item.displayType === 'special') borderClass = 'border-pink-500';
                                         else if (item.displayType === 'class') borderClass = 'border-emerald-500'; 
                                         
+                                        // DEĞİŞİKLİK: Süresi geçen görevleri sönükleştir
+                                        const nowTotalMin = new Date().getHours() * 60 + new Date().getMinutes();
+                                        const isPast = item.relativeMin < nowTotalMin;
+                                        const opacityClass = isPast ? 'opacity-40 grayscale' : 'opacity-100';
+
                                         return (
-                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass}`}>
+                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass} ${opacityClass}`}>
                                                 <div className="flex-1 p-3 flex items-center gap-3 cursor-pointer" onClick={() => { if(item.displayType!=='prayer'&&item.displayType!=='class') openEditTask(item) }}>
                                                     <div className="text-center min-w-[50px] font-mono font-bold text-lg text-slate-300">{item.time}</div>
                                                     <div className="flex-1">
@@ -770,8 +775,10 @@
                                                             }}>
                                                                 {l ? 
                                                                     <div className={`w-full h-full rounded flex flex-col items-center justify-center text-center p-1 text-[9px] font-light shadow-sm ${LESSON_TYPES[l.type].className}`} style={{lineHeight:'1.1'}}>
-                                                                        <span className="font-bold">{l.name}</span>
-                                                                        {l.classroom && <span className="text-[8px] opacity-80 mt-0.5">{l.classroom}</span>}
+                                                                        <span className="font-bold block truncate">{l.name}</span>
+                                                                        {/* DEĞİŞİKLİK: Saat aralığı eklendi */}
+                                                                        {(l.startTime && l.endTime) && <span className="block text-[8px] font-bold opacity-90 mt-0.5 bg-black/20 rounded px-1">{l.startTime} - {l.endTime}</span>}
+                                                                        {l.classroom && <span className="block text-[8px] opacity-80 mt-0.5 italic">{l.classroom}</span>}
                                                                     </div> 
                                                                     : 
                                                                     <div className="w-full h-full hover:bg-white/5 rounded"></div>
@@ -815,8 +822,9 @@
                                                         <td key={d} className="p-1 border border-black h-12 text-center relative">
                                                             {l && (
                                                                 <div className={`text-[10px] font-bold p-2 h-full flex flex-col items-center justify-center ${LESSON_TYPES[l.type].className}`} style={{border: '1px solid black', color: 'white'}}>
-                                                                    <span>{l.name}</span>
-                                                                    {l.classroom && <span className="text-[8px] mt-1">{l.classroom}</span>}
+                                                                    <span className="block truncate w-full">{l.name}</span>
+                                                                    {(l.startTime && l.endTime) && <span className="block text-[9px] bg-black/20 px-1 rounded my-0.5">{l.startTime} - {l.endTime}</span>}
+                                                                    {l.classroom && <span className="text-[8px] italic">{l.classroom}</span>}
                                                                 </div>
                                                             )}
                                                         </td>
@@ -835,7 +843,7 @@
                         {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => setView(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
                     </div>
 
-                    {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-red-600 animate-pulse' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold text-white">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}
+                    {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-yellow-400 animate-pulse text-black' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}
 
                     {/* YENİ DERS EKLEME MODALI */}
                     {activeModal === 'addLesson' && (
@@ -944,10 +952,7 @@
                     )}
 
                     {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.txt)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
-                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items bash
-
-cat >> /mnt/user-data/outputs/akademik_asistan_v2.html << 'EOF'
--center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea><div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="flex items-center justify-between mb-2"><span className="text-xs text-slate-300">Rutin Tekrar?</span><input type="checkbox" checked={isRecurring} onChange={e=>setIsRecurring(e.target.checked)} className="w-4 h-4 accent-blue-500" disabled={!!editingTask} /></div>{isRecurring && (<div className="flex items-center gap-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Hafta?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
+                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea><div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="flex items-center justify-between mb-2"><span className="text-xs text-slate-300">Rutin Tekrar?</span><input type="checkbox" checked={isRecurring} onChange={e=>setIsRecurring(e.target.checked)} className="w-4 h-4 accent-blue-500" disabled={!!editingTask} /></div>{isRecurring && (<div className="flex items-center gap-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Hafta?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
                     {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Notunuz..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
                     {activeModal === 'lesson' && editingLesson && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">Ders Düzenle</h3><div className="mb-4"><label className="text-xs text-slate-400 block mb-1">Ders Adı</label><input className="w-full input-dark p-3 rounded" value={editingLesson.data.name} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,name:e.target.value}})} /></div>
                     <div className="mb-4"><label className="text-xs text-slate-400 block mb-1">Sınıf/Derslik</label><input className="w-full input-dark p-3 rounded" placeholder="örn: A101" value={editingLesson.data.classroom || ""} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,classroom:e.target.value}})} /></div>
@@ -963,7 +968,3 @@ cat >> /mnt/user-data/outputs/akademik_asistan_v2.html << 'EOF'
     </script>
 </body>
 </html>
-EOF
-Output
-
-exit code 0
