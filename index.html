@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Akademik Asistan (Temiz Kurulum)</title>
+    <title>Akademik Asistan V2.2</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -81,7 +81,6 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // VERİ TABANI ANAHTARLARI GÜNCELLENDİ (_vFinal) - ESKİ VERİLER GELMEYECEK
         const safeGet = (key, def) => { 
             try { 
                 const val = localStorage.getItem(key);
@@ -188,6 +187,7 @@
             { name: "Sinop Üni.", city: "Sinop", url: "https://sinop.edu.tr/" },
             { name: "Süleyman Demirel Üni.", city: "Isparta", url: "https://sdu.edu.tr/" },
             { name: "Şırnak Üni.", city: "Sirnak", url: "https://sirnak.edu.tr/" },
+	    { name: "TOBB ETU", city: "Ankara", url: "https://www.etu.edu.tr/tr/haberler/" },
             { name: "Trakya Üni.", city: "Edirne", url: "https://trakya.edu.tr/" },
             { name: "Tunceli Üni.", city: "Tunceli", url: "https://munzur.edu.tr/" },
             { name: "Uludağ Üni.", city: "Bursa", url: "https://uludag.edu.tr/" },
@@ -323,11 +323,14 @@
                 return list.sort((a, b) => a.sortTime.localeCompare(b.sortTime));
             }, [tasks, prayerTimes, user, schedule, timeSlots]);
 
-            // PANORAMIC TIMELINE
+            // PANORAMIC TIMELINE - 6 Saat Geri / 18 Saat İleri
             const getTimelineEvents = useCallback(() => {
                 const now = new Date();
                 const nowMinTotal = now.getHours() * 60 + now.getMinutes();
-                const windowStart = nowMinTotal - (12 * 60); const windowEnd = nowMinTotal + (12 * 60);
+                // DEĞİŞİKLİK: 6 saat öncesi ve 18 saat sonrası (Toplam 24 saat)
+                const windowStart = nowMinTotal - (6 * 60); 
+                const windowEnd = nowMinTotal + (18 * 60);
+                
                 let events = [];
                 tasks.forEach(t => {
                     const tDate = new Date(t.date); const tMin = getMinutes(t.time); const diffDays = Math.round((tDate.setHours(0,0,0,0) - new Date().setHours(0,0,0,0)) / (1000*60*60*24));
@@ -369,7 +372,9 @@
              const getTimelineList = () => {
                 const events = getTimelineEvents();
                 const nowMin = new Date().getHours() * 60 + new Date().getMinutes();
-                return events.filter(e => e.relativeMin >= nowMin).slice(0, 20); 
+                // DEĞİŞİKLİK: Filtrelemeyi kaldırdım ki geçmiştekileri de listede görüp soluklaştırabilelim, ama sadece bugünün ve yakın geleceğin eventlerini alalım.
+                // Listede sadece o anki penceredeki eventleri gösterelim.
+                return events.slice(0, 25); 
             };
 
             useEffect(() => {
@@ -586,13 +591,23 @@
             };
 
             const renderTimelineBar = () => {
-                const events = getTimelineEvents(); const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes(); const windowStart = nowMin - (12 * 60); const windowTotal = 1440; 
+                const events = getTimelineEvents(); 
+                const nowMin = currentTime.getHours() * 60 + currentTime.getMinutes(); 
+                
+                // DEĞİŞİKLİK: 6 saat önce, 18 saat sonra (Toplam 1440dk = 24 saat)
+                const windowStart = nowMin - (6 * 60); 
+                const windowTotal = 24 * 60; // 1440
+
                 return (
                     <div className="h-16 relative w-full overflow-hidden flex items-center bg-slate-900 rounded-xl border border-slate-700 shadow-inner">
                         <div className="absolute top-1/2 left-0 w-full h-px bg-slate-600/50"></div>
-                        <div className={`absolute top-0 bottom-0 w-1 z-30 left-1/2 transition-colors duration-500 ${cursorColor}`}></div>
+                        {/* DEĞİŞİKLİK: İmleç artık %25'te (6/24 = 0.25) */}
+                        <div className={`absolute top-0 bottom-0 w-1 z-30 left-[25%] transition-colors duration-500 ${cursorColor}`}></div>
                         {events.map(ev => {
-                            let diff = ev.relativeMin - nowMin; const positionPct = 50 + (diff / (12*60)) * 50; 
+                            // DEĞİŞİKLİK: Pozisyon hesaplaması yeni pencereye göre
+                            let diff = ev.relativeMin - windowStart; 
+                            const positionPct = (diff / windowTotal) * 100;
+                            
                             if (positionPct < 0 || positionPct > 100) return null;
                             
                             let nodeColor = "bg-gray-500"; 
@@ -604,7 +619,7 @@
                                 else if (ev.displayType === 'class') nodeColor = "bg-emerald-500 w-3 h-3 rounded-full border-2 border-slate-900";
                             }
 
-                            let pulseClass = ""; if (diff > 0 && diff < 120 && ev.displayType !== 'prayer') pulseClass = "animate-pulse scale-125"; 
+                            let pulseClass = ""; if ((ev.relativeMin - nowMin) > 0 && (ev.relativeMin - nowMin) < 120 && ev.displayType !== 'prayer') pulseClass = "animate-pulse scale-125"; 
                             return (<div key={ev.id} className={`absolute top-1/2 -translate-y-1/2 z-20 cursor-pointer ${nodeColor} ${pulseClass}`} style={{left: `${positionPct}%`}} onClick={() => { if(ev.displayType!=='prayer'&&ev.displayType!=='class') openEditTask(ev); else setSelectedNode(ev); }}></div>);
                         })}
                     </div>
@@ -619,7 +634,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V2.1 • Temiz Kurulum</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V2.2 • Temiz Kurulum</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -659,7 +674,7 @@
                             <button onClick={() => setActiveModal('settings')} className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-blue-400"><i className="fas fa-cog text-xs"></i></button>
                         </div>
                         <div className="mt-6 relative">
-                            <div className="flex justify-between text-[10px] text-blue-200 font-mono mb-1"><span>-12s</span><span className="animate-pulse text-white font-bold">{currentTimeStr}</span><span>+12s</span></div>
+                            <div className="flex justify-between text-[10px] text-blue-200 font-mono mb-1"><span>-6s</span><span className="animate-pulse text-white font-bold">{currentTimeStr}</span><span>+18s</span></div>
                             {renderTimelineBar()}
                             {selectedNode && (<div className="mt-2 bg-slate-800 p-2 rounded border border-slate-600 text-xs flex justify-between items-center animate-enter">
                                 <div>
@@ -675,18 +690,25 @@
                         {/* AKIŞ */}
                         {view === 'flow' && (
                             <div className="animate-enter space-y-3">
-                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Günlük Akış (Yaklaşan)</h3>
+                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Günlük Akış</h3>
                                 {getTimelineList().length === 0 ? <div className="text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl">Akış boş.</div> : 
                                     getTimelineList().map((item, i) => { 
-                                        let borderClass = 'border-slate-600 opacity-50'; 
+                                        const nowTotalMin = new Date().getHours() * 60 + new Date().getMinutes();
+                                        // DEĞİŞİKLİK: Süresi geçmiş mi kontrolü
+                                        const isPast = item.relativeMin < nowTotalMin;
+                                        
+                                        let borderClass = 'border-slate-600'; 
                                         if (item.displayType === 'prayer') borderClass = 'border-white'; 
                                         else if (item.displayType === 'daily' || item.displayType === 'task') borderClass = 'border-blue-500'; 
                                         else if (item.displayType === 'official') borderClass = 'border-amber-500'; 
                                         else if (item.displayType === 'special') borderClass = 'border-pink-500';
                                         else if (item.displayType === 'class') borderClass = 'border-emerald-500'; 
                                         
+                                        // DEĞİŞİKLİK: Süresi geçenler için stil (sönük ve gri)
+                                        const pastClass = isPast ? 'opacity-40 grayscale' : 'opacity-100';
+
                                         return (
-                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass}`}>
+                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass} ${pastClass} transition-all duration-500`}>
                                                 <div className="flex-1 p-3 flex items-center gap-3 cursor-pointer" onClick={() => { if(item.displayType!=='prayer'&&item.displayType!=='class') openEditTask(item) }}>
                                                     <div className="text-center min-w-[50px] font-mono font-bold text-lg text-slate-300">{item.time}</div>
                                                     <div className="flex-1">
@@ -852,7 +874,7 @@
                         {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => setView(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
                     </div>
 
-                    {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-red-600 animate-pulse' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold text-white">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}
+                    {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-yellow-400 animate-pulse text-black' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}
 
                     {/* YENİ DERS EKLEME MODALI */}
                     {activeModal === 'addLesson' && (
