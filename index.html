@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Akademik Asistan (Kararlı Sürüm)</title>
+    <title>Akademik Asistan (Final Fixed)</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -42,7 +42,6 @@
         .screenshot-mode .glass { background: white !important; border: 1px solid #000 !important; color: black !important; box-shadow: none !important; }
         .screenshot-mode input { color: black !important; background: transparent !important; border: none !important; text-align: center; }
 
-        /* Ders Renkleri */
         .lesson-lisans { background: linear-gradient(135deg, #0d9488 0%, #115e59 100%) !important; border-left: 3px solid #5eead4 !important; color: white !important; } 
         .lesson-yuksek { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important; border-left: 3px solid #a5b4fc !important; color: white !important; } 
         .lesson-doktora { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important; border-left: 3px solid #fda4af !important; color: white !important; } 
@@ -60,21 +59,19 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
-        // GÜVENLİ VERİ OKUMA (Hata toleranslı)
+        // GÜVENLİ VERİ OKUMA VE VARSAYILAN DEĞERLER
         const safeGet = (key, def) => { 
             try { 
                 const val = localStorage.getItem(key);
                 return val ? JSON.parse(val) : def; 
             } catch (e) { 
-                console.error("Veri okuma hatası:", key);
+                console.error("Veri okuma hatası, varsayılan değer kullanılıyor:", key);
                 return def; 
             } 
         };
 
         const UNIVERSITIES = [
             { name: "Abant İzzet Baysal Üni.", city: "Bolu", url: "https://www.ibu.edu.tr/" },
-            { name: "Adıyaman Üni.", city: "Adiyaman", url: "https://adiyaman.edu.tr/" },
-            { name: "Akdeniz Üni.", city: "Antalya", url: "https://www.akdeniz.edu.tr/" },
             { name: "Anadolu Üni.", city: "Eskisehir", url: "https://www.anadolu.edu.tr/" },
             { name: "Ankara Üni.", city: "Ankara", url: "https://www.ankara.edu.tr/" },
             { name: "Atatürk Üni.", city: "Erzurum", url: "https://www.atauni.edu.tr/" },
@@ -103,22 +100,29 @@
         };
         const DAYS_TR = ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"];
 
+        const DEFAULT_SCHEDULE = {
+            Pazartesi: Array(13).fill(null), Sali: Array(13).fill(null), Carsamba: Array(13).fill(null), 
+            Persembe: Array(13).fill(null), Cuma: Array(13).fill(null), Cumartesi: Array(13).fill(null), Pazar: Array(13).fill(null)
+        };
+
         const App = () => {
-            // STATE - _vStable anahtarı ile temiz başlangıç
-            const [user, setUser] = useState(() => safeGet('user_vStable', null));
-            const [tasks, setTasks] = useState(() => safeGet('tasks_vStable', []));
-            const [notes, setNotes] = useState(() => safeGet('notes_vStable', []));
-            const [schedule, setSchedule] = useState(() => safeGet('schedule_vStable', {
-                Pazartesi: Array(13).fill(null), Sali: Array(13).fill(null), Carsamba: Array(13).fill(null), 
-                Persembe: Array(13).fill(null), Cuma: Array(13).fill(null), Cumartesi: Array(13).fill(null), Pazar: Array(13).fill(null)
-            }));
-            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_vStable', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
-            const [customScores, setCustomScores] = useState(() => safeGet('scores_vStable', []));
-            const [targetScore, setTargetScore] = useState(() => safeGet('target_score_vStable', 100));
+            // STATE - Yeni anahtarlar (vFinalFixed) ile temiz başlangıç
+            const [user, setUser] = useState(() => safeGet('user_vFinalFixed', null));
+            const [tasks, setTasks] = useState(() => safeGet('tasks_vFinalFixed', []));
+            const [notes, setNotes] = useState(() => safeGet('notes_vFinalFixed', []));
+            
+            // Schedule için ekstra güvenlik: Boş gelirse default yapıyı kullan
+            const [schedule, setSchedule] = useState(() => {
+                const s = safeGet('schedule_vFinalFixed', null);
+                return s ? { ...DEFAULT_SCHEDULE, ...s } : DEFAULT_SCHEDULE;
+            });
+
+            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_vFinalFixed', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
+            const [customScores, setCustomScores] = useState(() => safeGet('scores_vFinalFixed', []));
+            const [targetScore, setTargetScore] = useState(() => safeGet('target_score_vFinalFixed', 100));
             
             const [view, setView] = useState("flow");
             const [activeModal, setActiveModal] = useState(null); 
-            const [dayDetailData, setDayDetailData] = useState(null); 
             const [selectedNode, setSelectedNode] = useState(null);
             const [isScreenshotMode, setIsScreenshotMode] = useState(false);
             const [alertState, setAlertState] = useState(null); 
@@ -139,20 +143,19 @@
             const [cursorColor, setCursorColor] = useState("bg-emerald-500 shadow-[0_0_10px_#10b981]");
             const [pomodoro, setPomodoro] = useState({ active: false, time: 25 * 60 });
             
-            const fileInputRef = useRef(null);
             const audioRef = useRef(null);
             const [currentTime, setCurrentTime] = useState(new Date());
 
             // KAYIT İŞLEMLERİ
-            useEffect(() => { if(user) localStorage.setItem('user_vStable', JSON.stringify(user)); }, [user]);
-            useEffect(() => { localStorage.setItem('tasks_vStable', JSON.stringify(tasks)); }, [tasks]);
-            useEffect(() => { localStorage.setItem('schedule_vStable', JSON.stringify(schedule)); }, [schedule]);
-            useEffect(() => { localStorage.setItem('notes_vStable', JSON.stringify(notes)); }, [notes]);
-            useEffect(() => { localStorage.setItem('scores_vStable', JSON.stringify(customScores)); }, [customScores]);
-            useEffect(() => { localStorage.setItem('target_score_vStable', JSON.stringify(targetScore)); }, [targetScore]);
-            useEffect(() => { localStorage.setItem('timeslots_vStable', JSON.stringify(timeSlots)); }, [timeSlots]);
+            useEffect(() => { if(user) localStorage.setItem('user_vFinalFixed', JSON.stringify(user)); }, [user]);
+            useEffect(() => { localStorage.setItem('tasks_vFinalFixed', JSON.stringify(tasks)); }, [tasks]);
+            useEffect(() => { localStorage.setItem('schedule_vFinalFixed', JSON.stringify(schedule)); }, [schedule]);
+            useEffect(() => { localStorage.setItem('notes_vFinalFixed', JSON.stringify(notes)); }, [notes]);
+            useEffect(() => { localStorage.setItem('scores_vFinalFixed', JSON.stringify(customScores)); }, [customScores]);
+            useEffect(() => { localStorage.setItem('target_score_vFinalFixed', JSON.stringify(targetScore)); }, [targetScore]);
+            useEffect(() => { localStorage.setItem('timeslots_vFinalFixed', JSON.stringify(timeSlots)); }, [timeSlots]);
 
-            // YARDIMCI FONKSİYONLAR
+            // HELPER
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
             const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"]; return map[d.getDay()]; };
 
@@ -160,7 +163,7 @@
                 const taskExists = tasks.find(t => t.date === date && t.time === time && t.id !== editingTask?.id);
                 if (taskExists) return `Çakışma: "${taskExists.title}"`;
                 const dayKey = getDayKey(date);
-                const daySchedule = schedule[dayKey];
+                const daySchedule = schedule?.[dayKey];
                 if (daySchedule && Array.isArray(daySchedule)) {
                     const taskMin = getMinutes(time);
                     for(let i=0; i<daySchedule.length; i++) {
@@ -176,9 +179,9 @@
                 return null;
             };
 
-            // HESAPLAMA MOTORU (Optimized & Safe)
+            // HESAPLAMA MOTORU (Güvenli)
             const allEvents = useMemo(() => {
-                if (!user) return []; // KULLANICI YOKSA HESAPLAMA YAPMA!
+                if (!user) return []; 
 
                 const now = new Date();
                 const nowMinTotal = now.getHours() * 60 + now.getMinutes();
@@ -187,7 +190,6 @@
                 
                 let events = [];
                 
-                // Tasks
                 tasks.forEach(t => {
                     if (!t.date || !t.time) return;
                     const tDate = new Date(t.date); 
@@ -200,7 +202,6 @@
                     }
                 });
 
-                // Namaz
                 if (prayerTimes && user.enablePrayer) {
                     const map = { Fajr: "İmsak", Sunrise: "Güneş", Dhuhr: "Öğle", Asr: "İkindi", Maghrib: "Akşam", Isha: "Yatsı" };
                     [-1, 0, 1].forEach(dayOffset => {
@@ -215,11 +216,17 @@
                     });
                 }
 
-                // Dersler
                 [-1, 0, 1].forEach(dayOffset => {
                     const d = new Date(); d.setDate(d.getDate() + dayOffset);
-                    const dayKey = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"][d.getDay()];
-                    const dayLessons = schedule[dayKey];
+                    const dayKey = DAYS_TR[d.getDay() === 0 ? 6 : d.getDay() - 1]; // Pazartesi = 0 indexliyoruz dizide ama getDay Pazar=0
+                    // Düzeltme: DAYS_TR dizisi ["Pazartesi", ...] diye başlıyor.
+                    // getDay: 0=Pazar, 1=Pazartesi.
+                    // Bizim dizide Pazar sonda.
+                    // Doğru eşleşme için manuel kontrol:
+                    const dayMap = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"];
+                    const currentDayName = dayMap[d.getDay()];
+                    
+                    const dayLessons = schedule?.[currentDayName];
                     if (dayLessons && Array.isArray(dayLessons)) {
                         dayLessons.forEach((l, i) => {
                             if (l) {
@@ -233,16 +240,16 @@
                 return events.sort((a, b) => a.relativeMin - b.relativeMin);
             }, [tasks, prayerTimes, user, schedule, timeSlots]);
 
-            // ANA DÖNGÜ (TICK)
+            // ANA DÖNGÜ
             useEffect(() => {
-                if (!user) return; // Giriş yapılmadıysa timer başlatma!
+                if (!user) return; 
 
                 const tick = () => {
                     const now = new Date(); setCurrentTime(now);
                     setCurrentTimeStr(now.toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}));
                     const nowTotalMin = now.getHours() * 60 + now.getMinutes();
 
-                    // Cursor Rengi
+                    // Cursor
                     const nextEvent = allEvents.find(ev => ev.relativeMin > nowTotalMin && ev.displayType !== 'prayer');
                     if (nextEvent) {
                         const diff = nextEvent.relativeMin - nowTotalMin;
@@ -266,7 +273,7 @@
                             }
                         }
                     } else if (alertState && (!upcoming || upcoming.id !== alertState.id)) {
-                        setAlertState(null); // Alarmı durdur
+                        setAlertState(null);
                     }
 
                     // Pomodoro
@@ -338,6 +345,7 @@
                     for (let i = 0; i < timeSlots.length; i++) { if (getMinutes(timeSlots[i]) >= startMin) { slot = i; break; } }
                     if (slot !== -1) {
                         for (let i = 0; i < duration && (slot + i) < timeSlots.length; i++) {
+                            if(!ns[day]) ns[day] = Array(13).fill(null);
                             ns[day][slot + i] = { name: newLesson.name, type: newLesson.type, classroom: newLesson.classroom, duration: 1, batchId, startTime: newLesson.startTime, endTime: newLesson.endTime };
                         }
                     }
@@ -347,13 +355,13 @@
             
             const totalCalculated = customScores.reduce((acc, curr) => acc + ((parseInt(curr.value)||0)*(parseInt(curr.count)||0)), 0);
 
-            // GİRİŞ EKRANI (Login)
+            // GİRİŞ EKRANI
             if (!user) {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V2.4 • Stable</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V2.5 • Final Fixed</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -457,7 +465,7 @@
                                                 <tr key={i}>
                                                     <td className="p-1 border border-slate-800 text-center"><input type="time" className="bg-transparent text-center text-slate-500 w-full" value={t} onChange={e=>{const n=[...timeSlots];n[i]=e.target.value;setTimeSlots(n)}} /></td>
                                                     {Object.keys(schedule).map(d => {
-                                                        const l = schedule[d][i];
+                                                        const l = schedule[d] && schedule[d][i];
                                                         return <td key={d} className="p-1 border border-slate-800 h-12 relative cursor-pointer" onClick={()=>{if(!isScreenshotMode){setEditingLesson({day:d, index:i, data:l?{...l}:{name:"",type:"lisans",classroom:""}}); setActiveModal('lesson');}}}>{l ? <div className={`w-full h-full rounded p-1 text-[9px] font-bold text-center ${LESSON_TYPES[l.type].className}`}>{l.name}</div> : null}</td>
                                                     })}
                                                 </tr>
@@ -474,15 +482,13 @@
                     {/* MODALLER */}
                     {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik</option><option value="official">Resmi</option><option value="special">Özel</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea><div className="flex items-center gap-2"><input type="checkbox" checked={isRecurring} onChange={e=>setIsRecurring(e.target.checked)} className="w-4 h-4" disabled={!!editingTask}/><span className="text-xs text-slate-300">Haftalık Tekrar?</span>{isRecurring && <input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-12 bg-slate-900 text-white text-center rounded" />}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-slate-400">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold ${conflictWarn ? 'bg-red-600' : 'bg-blue-600'}`}>{conflictWarn ? 'Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300">{conflictWarn}</div>}</div></div>)}
                     {activeModal === 'addLesson' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">Yeni Ders Ekle</h3><div className="space-y-4"><div><label className="text-xs text-slate-400">Ders Adı</label><input className="w-full input-dark p-3 rounded" value={newLesson.name} onChange={e=>setNewLesson({...newLesson, name:e.target.value})} /></div><div className="grid grid-cols-2 gap-2"><div><label className="text-xs text-slate-400">Başlangıç</label><input type="time" className="w-full input-dark p-3 rounded" value={newLesson.startTime} onChange={e=>setNewLesson({...newLesson, startTime:e.target.value})} /></div><div><label className="text-xs text-slate-400">Bitiş</label><input type="time" className="w-full input-dark p-3 rounded" value={newLesson.endTime} onChange={e=>setNewLesson({...newLesson, endTime:e.target.value})} /></div></div><div><label className="text-xs text-slate-400">Sınıf</label><input className="w-full input-dark p-3 rounded" value={newLesson.classroom} onChange={e=>setNewLesson({...newLesson, classroom:e.target.value})} /></div><div><label className="text-xs text-slate-400 block mb-1">Ders Tipi</label><div className="grid grid-cols-2 gap-2">{Object.entries(LESSON_TYPES).map(([k,v])=>(<button key={k} onClick={()=>setNewLesson({...newLesson, type:k})} className={`p-2 rounded border text-xs ${newLesson.type===k?'border-white':'opacity-50'} ${v.btnClass}`}>{v.label}</button>))}</div></div><div><label className="text-xs text-slate-400 block mb-2">Günler</label><div className="grid grid-cols-4 gap-1">{DAYS_TR.map(d=><button key={d} onClick={()=>setNewLesson(p=>({...p, days:p.days.includes(d)?p.days.filter(x=>x!==d):[...p.days,d]}))} className={`p-1 text-[10px] rounded ${newLesson.days.includes(d)?'bg-blue-600 text-white':'bg-slate-700 text-slate-400'}`}>{d.substring(0,3)}</button>)}</div></div></div><div className="flex gap-2 mt-6"><button onClick={()=>setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-slate-400">İptal</button><button onClick={handleAddNewLesson} className="flex-1 py-3 rounded bg-emerald-600 text-white font-bold">Ekle</button></div></div></div>)}
-                    {activeModal === 'lesson' && editingLesson && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">Ders Düzenle</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" value={editingLesson.data.name} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,name:e.target.value}})} /><input className="w-full input-dark p-3 rounded" placeholder="Sınıf" value={editingLesson.data.classroom} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,classroom:e.target.value}})} /><div className="grid grid-cols-2 gap-2">{Object.entries(LESSON_TYPES).map(([k,v])=>(<button key={k} onClick={()=>setEditingLesson({...editingLesson,data:{...editingLesson.data,type:k}})} className={`p-2 rounded border text-xs ${editingLesson.data.type===k?'border-white':'opacity-50'} ${v.btnClass}`}>{v.label}</button>))}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setSchedule(prev=>{const n={...prev}; n[editingLesson.day][editingLesson.index]=null; return n;})||setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-red-400">Sil</button><button onClick={()=>setSchedule(prev=>{const n={...prev}; n[editingLesson.day][editingLesson.index]=editingLesson.data; return n;})||setActiveModal(null)} className="flex-1 py-3 rounded bg-blue-600 text-white font-bold">Kaydet</button></div></div></div>)}
+                    {activeModal === 'lesson' && editingLesson && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">Ders Düzenle</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" value={editingLesson.data.name} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,name:e.target.value}})} /><input className="w-full input-dark p-3 rounded" placeholder="Sınıf" value={editingLesson.data.classroom} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,classroom:e.target.value}})} /><div className="grid grid-cols-2 gap-2">{Object.entries(LESSON_TYPES).map(([k,v])=>(<button key={k} onClick={()=>setEditingLesson({...editingLesson,data:{...editingLesson.data,type:k}})} className={`p-2 rounded border text-xs ${editingLesson.data.type===k?'border-white':'opacity-50'} ${v.btnClass}`}>{v.label}</button>))}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setSchedule(prev=>{const n={...prev}; if(n[editingLesson.day]) n[editingLesson.day][editingLesson.index]=null; return n;})||setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-red-400">Sil</button><button onClick={()=>setSchedule(prev=>{const n={...prev}; if(n[editingLesson.day]) n[editingLesson.day][editingLesson.index]=editingLesson.data; return n;})||setActiveModal(null)} className="flex-1 py-3 rounded bg-blue-600 text-white font-bold">Kaydet</button></div></div></div>)}
                     {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Notlar</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={()=>{if(newNote) {setNotes([{id:Date.now(),text:newNote,date:new Date().toLocaleDateString()},...notes]); setNewNote("");}}} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
 
-                    {/* NAVİGASYON */}
                     <div className="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around py-4 pb-8 z-50 no-screenshot">
                         {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => setView(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
                     </div>
                     
-                    {/* POMODORO BUTTON */}
                     {!isScreenshotMode && <button onClick={() => setPomodoro(prev => ({...prev, active: !prev.active}))} className={`fixed bottom-24 left-4 z-50 w-12 h-12 rounded-full flex items-center justify-center shadow-lg transition-all border border-slate-700 no-screenshot ${pomodoro.active ? 'bg-yellow-400 animate-pulse text-black' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>{pomodoro.active ? <span className="text-xs font-bold">{Math.floor(pomodoro.time/60)}:{String(pomodoro.time%60).padStart(2,'0')}</span> : <i className="fas fa-stopwatch text-xl"></i>}</button>}
 
                     {isScreenshotMode && (
@@ -500,7 +506,7 @@
                                             <tr key={i}>
                                                 <td className="p-2 border border-black text-center font-bold bg-gray-50">{t}</td>
                                                 {Object.keys(schedule).map(d => { 
-                                                    const l = schedule[d][i]; 
+                                                    const l = schedule[d] && schedule[d][i]; 
                                                     return <td key={d} className="p-1 border border-black h-12 text-center relative">{l && (<div className={`text-[10px] font-bold p-2 h-full flex flex-col items-center justify-center ${LESSON_TYPES[l.type].className}`} style={{border:'1px solid black',color:'white'}}><span className="block truncate w-full">{l.name}</span><span className="block text-[9px] bg-black/20 px-1 rounded my-0.5">{l.startTime} - {l.endTime}</span><span className="text-[8px] italic">{l.classroom}</span></div>)}</td>
                                                 })}
                                             </tr>
