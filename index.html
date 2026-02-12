@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Akademik Asistan V2.1</title>
+    <title>Akademik Asistan V1.3</title>
     
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
@@ -471,7 +471,41 @@
             const importData = () => { const input = document.createElement('input'); input.type = 'file'; input.accept = '.txt,.json'; input.onchange = (e) => { const file = e.target.files[0]; const reader = new FileReader(); reader.onload = (ev) => { try { const data = JSON.parse(ev.target.result); if(data.user) setUser(data.user); if(data.tasks) setTasks(data.tasks); if(data.schedule) setSchedule(data.schedule); if(data.customScores) setCustomScores(data.customScores); if(data.notes) setNotes(data.notes); alert("Yedek yüklendi!"); window.location.reload(); } catch(err) { alert("Hata! Dosya bozuk."); } }; reader.readAsText(file); }; input.click(); };
             const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "Takvimden", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} etkinlik eklendi.`); }; reader.readAsText(file); };
             const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); } };
-            const getAllEvents = () => { const academicEvents = calendarEvents.map(e => ({ ...e, origin: 'academic', title: e.event, category: 'academic' })); const userEvents = tasks.map(t => ({ ...t, event: t.title, origin: t.origin || 'personal', category: t.category })); return [...academicEvents, ...userEvents]; };
+            
+            // YENİ: Özel günleri her yıl tekrarlayan fonksiyon
+            const getAllEvents = () => { 
+                const academicEvents = calendarEvents.map(e => ({ ...e, origin: 'academic', title: e.event, category: 'academic' })); 
+                const userEvents = tasks.map(t => ({ ...t, event: t.title, origin: t.origin || 'personal', category: t.category }));
+                
+                // Özel günleri döngüsel olarak ekle
+                const recurringSpecialEvents = [];
+                const currentYear = new Date().getFullYear();
+                const specialDays = tasks.filter(t => t.category === 'special');
+                
+                // 3 yıl öncesinden 3 yıl sonrasına kadar göster
+                for (let yearOffset = -3; yearOffset <= 3; yearOffset++) {
+                    specialDays.forEach(day => {
+                        const originalDate = new Date(day.date);
+                        const month = String(originalDate.getMonth() + 1).padStart(2, '0');
+                        const dayNum = String(originalDate.getDate()).padStart(2, '0');
+                        const newYear = currentYear + yearOffset;
+                        const newDate = `${newYear}-${month}-${dayNum}`;
+                        
+                        // Orijinal tarihi ekleme (zaten userEvents'te var)
+                        if (newDate !== day.date) {
+                            recurringSpecialEvents.push({
+                                ...day,
+                                date: newDate,
+                                event: day.title,
+                                id: `${day.id}-${newYear}`,
+                                isRecurring: true
+                            });
+                        }
+                    });
+                }
+                
+                return [...academicEvents, ...userEvents, ...recurringSpecialEvents]; 
+            };
             
             const saveLesson = () => { 
                 const { day, index, data } = editingLesson; 
@@ -607,7 +641,7 @@
                     <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
                         <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
                             <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V2.1 • Zaphyros</p>
+                            <p className="text-center text-slate-400 mb-6 text-sm">V2.2 • Zaphyros</p>
                             <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
                                 <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
                                 <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
@@ -954,12 +988,106 @@
                     {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.txt)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
                     {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea><div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="flex items-center justify-between mb-2"><span className="text-xs text-slate-300">Rutin Tekrar?</span><input type="checkbox" checked={isRecurring} onChange={e=>setIsRecurring(e.target.checked)} className="w-4 h-4 accent-blue-500" disabled={!!editingTask} /></div>{isRecurring && (<div className="flex items-center gap-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Hafta?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}</div></div><div className="flex gap-2 mt-4"><button onClick={()=>setActiveModal(null)} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
                     {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Notunuz..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
-                    {activeModal === 'lesson' && editingLesson && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl"><h3 className="text-white font-bold mb-4">Ders Düzenle</h3><div className="mb-4"><label className="text-xs text-slate-400 block mb-1">Ders Adı</label><input className="w-full input-dark p-3 rounded" value={editingLesson.data.name} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,name:e.target.value}})} /></div>
-                    <div className="mb-4"><label className="text-xs text-slate-400 block mb-1">Sınıf/Derslik</label><input className="w-full input-dark p-3 rounded" placeholder="örn: A101" value={editingLesson.data.classroom || ""} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,classroom:e.target.value}})} /></div>
-                    <div className="mb-4"><label className="text-xs text-slate-400 block mb-1">Süre (Saat)</label><input type="number" min="1" max="8" className="w-full input-dark p-3 rounded" value={editingLesson.data.duration || ""} onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,duration:e.target.value}})} /></div>
-                    <div className="mb-6"><label className="text-xs text-slate-400 block mb-1">Tür (Renk Seçimi)</label><div className="grid grid-cols-2 gap-2">{Object.entries(LESSON_TYPES).map(([k,v])=>(<button key={k} onClick={()=>setEditingLesson({...editingLesson,data:{...editingLesson.data,type:k}})} className={`p-2 rounded border text-xs font-bold transition ${editingLesson.data.type===k?'ring-2 ring-white scale-105':'opacity-80'} ${v.btnClass}`}>{v.label}</button>))}</div></div>
-                    <div className="flex gap-2"><button onClick={deleteLesson} className="flex-1 py-3 rounded bg-slate-700 text-red-400 hover:bg-slate-600">Sil</button><button onClick={saveLesson} className="flex-1 py-3 rounded bg-blue-600 text-white font-bold hover:bg-blue-500">Kaydet</button></div></div></div>)}
-                    {activeModal === 'dayDetail' && dayDetailData && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto"><div className="flex justify-between items-center mb-4"><h3 className="text-white font-bold">{dayDetailData.date} Detayı</h3><button onClick={() => { setActiveModal(null); setDayDetailData(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button></div><div className="space-y-3">{dayDetailData.events.map((ev, i) => (<div key={i} className={`p-3 rounded border-l-4 flex justify-between items-center ${ev.category==='academic'?'bg-red-900/30 border-red-500': ev.category==='official'?'bg-amber-900/30 border-amber-500': ev.category==='special'?'bg-pink-900/30 border-pink-500':'bg-blue-900/30 border-blue-500'}`} onClick={() => { if(ev.origin === 'personal') { openEditTask(ev); setDayDetailData(null); } }}><div><div className="text-sm font-bold text-white">{ev.event}</div>{ev.time && <div className="text-xs text-slate-400 mt-1"><i className="far fa-clock mr-1"></i>{ev.time}</div>}<div className="text-[10px] text-slate-500 mt-1 uppercase">{ev.origin}</div></div>{ev.origin === 'personal' && <button onClick={(e) => deleteTask(e, ev.id)} className="text-red-400 hover:text-red-300 px-2 ml-2"><i className="fas fa-trash"></i></button>}</div>))}</div><div className="mt-6 pt-4 border-t border-slate-700"><button onClick={() => { setNewTask({ title: "", date: dayDetailData.date, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); }} className="w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-700 transition flex items-center justify-center gap-2"><i className="fas fa-plus"></i> Bu Güne Hatırlatıcı Ekle</button></div></div></div>)}
+                    
+                    {/* DERS DÜZENLEME MODALI - GÜNCELLENDİ */}
+                    {activeModal === 'lesson' && editingLesson && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot">
+                            <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
+                                <h3 className="text-white font-bold mb-4">Ders Düzenle</h3>
+                                
+                                <div className="space-y-4">
+                                    {/* Ders Adı */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Ders Adı</label>
+                                        <input 
+                                            className="w-full input-dark p-3 rounded" 
+                                            value={editingLesson.data.name} 
+                                            onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,name:e.target.value}})} 
+                                        />
+                                    </div>
+
+                                    {/* Başlangıç ve Bitiş Saati */}
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Başlangıç</label>
+                                            <input 
+                                                type="time" 
+                                                className="w-full input-dark p-3 rounded" 
+                                                value={editingLesson.data.startTime || ""} 
+                                                onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,startTime:e.target.value}})} 
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="text-xs text-slate-400 block mb-1">Bitiş</label>
+                                            <input 
+                                                type="time" 
+                                                className="w-full input-dark p-3 rounded" 
+                                                value={editingLesson.data.endTime || ""} 
+                                                onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,endTime:e.target.value}})} 
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Sınıf/Derslik */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Sınıf/Derslik</label>
+                                        <input 
+                                            className="w-full input-dark p-3 rounded" 
+                                            placeholder="örn: A101" 
+                                            value={editingLesson.data.classroom || ""} 
+                                            onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,classroom:e.target.value}})} 
+                                        />
+                                    </div>
+
+                                    {/* Süre (Saat) */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Süre (Saat)</label>
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            max="8" 
+                                            className="w-full input-dark p-3 rounded" 
+                                            value={editingLesson.data.duration || ""} 
+                                            onChange={e=>setEditingLesson({...editingLesson,data:{...editingLesson.data,duration:e.target.value}})} 
+                                        />
+                                    </div>
+
+                                    {/* Tür (Renk Seçimi) */}
+                                    <div>
+                                        <label className="text-xs text-slate-400 block mb-1">Tür (Renk Seçimi)</label>
+                                        <div className="grid grid-cols-2 gap-2">
+                                            {Object.entries(LESSON_TYPES).map(([k,v])=>(
+                                                <button 
+                                                    key={k} 
+                                                    onClick={()=>setEditingLesson({...editingLesson,data:{...editingLesson.data,type:k}})} 
+                                                    className={`p-2 rounded border text-xs font-bold transition ${editingLesson.data.type===k?'ring-2 ring-white scale-105':'opacity-80'} ${v.btnClass}`}
+                                                >
+                                                    {v.label}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="flex gap-2 mt-6">
+                                    <button 
+                                        onClick={deleteLesson} 
+                                        className="flex-1 py-3 rounded bg-slate-700 text-red-400 hover:bg-slate-600"
+                                    >
+                                        Sil
+                                    </button>
+                                    <button 
+                                        onClick={saveLesson} 
+                                        className="flex-1 py-3 rounded bg-blue-600 text-white font-bold hover:bg-blue-500"
+                                    >
+                                        Kaydet
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {activeModal === 'dayDetail' && dayDetailData && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto"><div className="flex justify-between items-center mb-4"><h3 className="text-white font-bold">{dayDetailData.date} Detayı</h3><button onClick={() => { setActiveModal(null); setDayDetailData(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button></div><div className="space-y-3">{dayDetailData.events.map((ev, i) => (<div key={i} className={`p-3 rounded border-l-4 flex justify-between items-center ${ev.category==='academic'?'bg-red-900/30 border-red-500': ev.category==='official'?'bg-amber-900/30 border-amber-500': ev.category==='special'?'bg-pink-900/30 border-pink-500':'bg-blue-900/30 border-blue-500'}`} onClick={() => { if(ev.origin === 'personal' && !ev.isRecurring) { openEditTask(ev); setDayDetailData(null); } }}><div><div className="text-sm font-bold text-white">{ev.event}{ev.isRecurring && <span className="text-[10px] ml-2 bg-pink-600 px-2 py-0.5 rounded">Döngüsel</span>}</div>{ev.time && <div className="text-xs text-slate-400 mt-1"><i className="far fa-clock mr-1"></i>{ev.time}</div>}<div className="text-[10px] text-slate-500 mt-1 uppercase">{ev.origin}</div></div>{ev.origin === 'personal' && !ev.isRecurring && <button onClick={(e) => deleteTask(e, ev.id)} className="text-red-400 hover:text-red-300 px-2 ml-2"><i className="fas fa-trash"></i></button>}</div>))}</div><div className="mt-6 pt-4 border-t border-slate-700"><button onClick={() => { setNewTask({ title: "", date: dayDetailData.date, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); }} className="w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-700 transition flex items-center justify-center gap-2"><i className="fas fa-plus"></i> Bu Güne Hatırlatıcı Ekle</button></div></div></div>)}
                 </div>
             );
         };
