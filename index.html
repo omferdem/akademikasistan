@@ -373,7 +373,7 @@
             { name: "Yüzüncü Yıl Üni.", city: "Van", url: "https://yyu.edu.tr/" }
         ].sort((a, b) => a.name.localeCompare(b.name));
 
-        const TITLES = ["Arş. Gör.", "Öğr. Gör.", "Dr. Öğr. Üyesi", "Doç. Dr.", "Prof. Dr."];
+        const TITLES = ["Prof. Dr.", "Doç. Dr.", "Dr. Öğr. Üyesi", "Dr. Öğr. Grv.", "Dr. Arş. Grv.", "Öğretmen", "Öğrenci"];
 
         const ACADEMIC_DATA = {
             "default": [
@@ -511,6 +511,23 @@
             const [editingLinkId, setEditingLinkId] = useState(null);
             const [tempLinkName, setTempLinkName] = useState("");
             const [tempLinkUrl, setTempLinkUrl] = useState("");
+            
+            // AI Linkleri state
+            const [aiLinks, setAiLinks] = useState(() => safeGet('ai_links_v48', [
+                {id: 1, name: "ChatGPT", url: "https://chatgpt.com", icon: "robot", color: "from-green-600 to-green-700"},
+                {id: 2, name: "NotebookLM", url: "https://notebooklm.google.com", icon: "book-open", color: "from-blue-600 to-blue-700"},
+                {id: 3, name: "Gemini", url: "https://gemini.google.com", icon: "gem", color: "from-indigo-600 to-indigo-700"},
+                {id: 4, name: "Claude", url: "https://claude.ai", icon: "brain", color: "from-orange-600 to-orange-700"},
+                {id: 5, name: "Scite AI", url: "https://scite.ai", icon: "microscope", color: "from-teal-600 to-teal-700"},
+                {id: 6, name: "Gamma", url: "https://gamma.app", icon: "magic", color: "from-purple-600 to-purple-700"},
+                {id: 7, name: "Jenni AI", url: "https://jenni.ai", icon: "pen-nib", color: "from-pink-600 to-pink-700"},
+                {id: 8, name: "Kimi", url: "https://kimi.moonshot.cn", icon: "moon", color: "from-cyan-600 to-cyan-700"},
+                {id: 9, name: "DeepSeek", url: "https://chat.deepseek.com", icon: "search", color: "from-blue-800 to-blue-900"},
+                {id: 10, name: "Perplexity", url: "https://www.perplexity.ai", icon: "question-circle", color: "from-slate-600 to-slate-700"}
+            ]));
+            const [editingAiLinkId, setEditingAiLinkId] = useState(null);
+            const [tempAiLinkName, setTempAiLinkName] = useState("");
+            const [tempAiLinkUrl, setTempAiLinkUrl] = useState("");
             const [notifSound, setNotifSound] = useState(() => safeGet('notif_sound_v48', 'default'));
             const [p2pdfImages, setP2pdfImages] = useState([]);
             
@@ -547,6 +564,14 @@
             
             // P2PDF fotoğraf ekle
             useEffect(() => {
+                window.__setSsImage = (img) => { setSsImage(img); };
+                window.__deleteSchedule = () => {
+                    const days = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
+                    const empty = {};
+                    days.forEach(d => { empty[d] = Array(14).fill(null); });
+                    setSchedule(empty);
+                    try { localStorage.removeItem('schedule_v48'); } catch(e) {}
+                };
                 window.__addPhotos = (images) => {
                     setP2pdfImages(prev => [...prev, ...images]);
                 };
@@ -554,6 +579,7 @@
             const [dayDetailData, setDayDetailData] = useState(null); 
             const [selectedNode, setSelectedNode] = useState(null);
             const [isScreenshotMode, setIsScreenshotMode] = useState(false);
+            const [ssImage, setSsImage] = useState(null);
             const [alertState, setAlertState] = useState(null); 
             const [conflictWarn, setConflictWarn] = useState(null);
             const [dismissedAlerts, setDismissedAlerts] = useState([]);
@@ -603,6 +629,11 @@
             useEffect(() => {
                 safeSave('custom_links_v48', customLinks);
             }, [customLinks]);
+            
+            // AI Linkleri localStorage
+            useEffect(() => {
+                safeSave('ai_links_v48', aiLinks);
+            }, [aiLinks]);
 
             const getMinutes = (timeStr) => { if(!timeStr) return 0; const [h, m] = timeStr.split(':').map(Number); return h * 60 + m; };
             const getDayKey = (dateStr) => { const d = new Date(dateStr); const map = ["Pazar", "Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi"]; return map[d.getDay()]; };
@@ -748,7 +779,7 @@
             const dismissAlert = () => { if (alertState) { setDismissedAlerts(prev => [...prev, alertState.id]); setAlertState(null); if(audioRef.current) { audioRef.current.pause(); audioRef.current.currentTime = 0; } } };
             const fetchPrayerTimes = async (city) => { try { const d = new Date(); const res = await fetch(`https://api.aladhan.com/v1/timingsByCity/${d.getDate()}-${d.getMonth()+1}-${d.getFullYear()}?city=${city}&country=Turkey&method=13`); const json = await res.json(); if(json.data) setPrayerTimes(json.data.timings); } catch (e) { console.error(e); } };
             const updateAcademicCalendar = (uniName) => { const newData = ACADEMIC_DATA[uniName] || ACADEMIC_DATA['default']; setCalendarEvents(newData); };
-            const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; updateAcademicCalendar(u.name); setUser({ ...user, title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); setActiveModal(null); };const handleAddTask = () => { 
+            const handleUpdateUser = (e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; updateAcademicCalendar(u.name); const cityChanged = u.city !== user.city; const prayerEnabled = fd.get('enablePrayer') === 'on'; if (cityChanged || (!user.enablePrayer && prayerEnabled)) { setPrayerTimes(null); if (prayerEnabled && u.city) { fetchPrayerTimes(u.city); } } setUser({ ...user, title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: prayerEnabled }); setActiveModal(null); };const handleAddTask = () => { 
                 if(!newTask.title || !newTask.date) return;
                 
                 if (!conflictWarn) {
@@ -1015,109 +1046,23 @@
             };
 
             const exportScheduleToPDF = async () => {
-    try {
-    if (!window.jspdf) { alert("PDF kütüphanesi yükleniyor, lütfen bekleyin..."); return; }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF('landscape', 'mm', 'a4');
-    
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.text(`${user.name} - Haftalık Ders Programı`, 148, 15, { align: "center" });
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${user.uni} • ${user.title}`, 148, 22, { align: "center" });
-
-    const days = Object.keys(schedule);
-    const cellWidth = 38;
-    const cellHeight = 12;
-    const startX = 10;
-    const startY = 30;
-
-    // Başlık satırı
-    doc.setFillColor(240, 240, 240);
-    doc.rect(startX, startY, 20, cellHeight, 'F');
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.text("Saat", startX + 10, startY + 7, { align: "center" });
-
-    days.forEach((day, i) => {
-        doc.rect(startX + 20 + (i * cellWidth), startY, cellWidth, cellHeight, 'F');
-        doc.text(day, startX + 20 + (i * cellWidth) + (cellWidth / 2), startY + 7, { align: "center" });
-    });
-
-    // Ders satırları
-    timeSlots.forEach((time, timeIndex) => {
-        const y = startY + ((timeIndex + 1) * cellHeight);
-        
-        // Saat kolonu
-        doc.setFillColor(250, 250, 250);
-        doc.rect(startX, y, 20, cellHeight, 'FD');
-        doc.setFont("helvetica", "normal");
-        doc.text(time, startX + 10, y + 7, { align: "center" });
-
-        // Ders hücreleri
-        days.forEach((day, dayIndex) => {
-            const lesson = schedule[day][timeIndex];
-            const x = startX + 20 + (dayIndex * cellWidth);
-            
-            if (lesson) {
-                // Renk seçimi
-                if (lesson.type === 'lisans') doc.setFillColor(13, 148, 136);
-                else if (lesson.type === 'yuksek') doc.setFillColor(79, 70, 229);
-                else if (lesson.type === 'doktora') doc.setFillColor(225, 29, 72);
-                else if (lesson.type === 'seminer') doc.setFillColor(217, 119, 6);
-                
-                doc.rect(x, y, cellWidth, cellHeight, 'FD');
-                doc.setTextColor(255, 255, 255);
-                doc.setFont("helvetica", "bold");
-                doc.setFontSize(7);
-                
-                // DERS ADI
-                doc.text(lesson.name, x + (cellWidth / 2), y + 4, { align: "center", maxWidth: cellWidth - 2 });
-                
-                // YENİ: SAAT ARALIĞI EKLEME
-                if (lesson.startTime && lesson.endTime) {
-                    doc.setFont("helvetica", "bold");
-                    doc.setFillColor(0, 0, 0, 0.3); // Yarı saydam siyah arka plan
-                    doc.rect(x + 1, y + 6, cellWidth - 2, 3, 'F');
-                    doc.setFontSize(6);
-                    doc.text(`${lesson.startTime} - ${lesson.endTime}`, x + (cellWidth / 2), y + 8, { align: "center" });
-                }
-                
-                // SINIF BİLGİSİ
-                if (lesson.classroom) {
-                    doc.setFont("helvetica", "italic");
-                    doc.setFontSize(6);
-                    doc.text(lesson.classroom, x + (cellWidth / 2), y + 11, { align: "center" });
-                }
-                
-                doc.setTextColor(0, 0, 0);
-            } else {
-                doc.rect(x, y, cellWidth, cellHeight, 'D');
-            }
-        });
-    });
-    
-    // YENİ: Alt bilgi ekleme
-    doc.setFontSize(8);
-    doc.setTextColor(100, 100, 100);
-    doc.text(`Oluşturulma Tarihi: ${new Date().toLocaleDateString('tr-TR')}`, 148, 200, { align: "center" });
-
-    // PDF'i base64 olarak native'e gönder
-    const pdfBase64 = doc.output('datauristring');
-    if (!sendToNative({ type: 'SAVE_PDF', data: pdfBase64, filename: 'ders-programi.pdf' })) {
-        // Native yoksa blob olarak dene
-        try {
-            const pdfBlob = doc.output('blob');
-            const url = URL.createObjectURL(pdfBlob);
-            const a = document.createElement('a');
-            a.href = url; a.download = 'ders-programi.pdf'; a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 1000);
-        } catch(e2) { alert("PDF kaydedilemedi: " + e2.message); }
-    }
-    } catch(pdfErr) { alert("PDF oluşturma hatası: " + pdfErr.message); }
-};
+                setIsScreenshotMode(true);
+                setSsImage(null);
+                setTimeout(async () => {
+                    try {
+                        const el = document.getElementById('ss-capture-area');
+                        if (!el || typeof html2canvas === 'undefined') return;
+                        const canvas = await html2canvas(el, {
+                            backgroundColor: '#ffffff',
+                            scale: 2,
+                            useCORS: true,
+                            logging: false
+                        });
+                        const imgData = canvas.toDataURL('image/png');
+                        window.__setSsImage && window.__setSsImage(imgData);
+                    } catch(e) { console.log('html2canvas hata:', e); }
+                }, 300);
+            };
 
             // YENİ: Kalp Atışı Hesaplama
             const getHeartbeatClass = (relativeMin, nowMin) => {
@@ -1205,6 +1150,29 @@
                 setEditingLinkId(link.id);
                 setTempLinkName(link.name);
                 setTempLinkUrl(link.url);
+            };
+            
+            // AI Link Fonksiyonları
+            const handleAiLinkClick = (link) => {
+                window.open(fixUrl(link.url), '_blank');
+            };
+            
+            const startEditAiLink = (link) => {
+                setEditingAiLinkId(link.id);
+                setTempAiLinkName(link.name);
+                setTempAiLinkUrl(link.url);
+            };
+            
+            const saveAiLink = () => {
+                if (!tempAiLinkName.trim()) { alert("Lütfen buton adı giriniz!"); return; }
+                setAiLinks(aiLinks.map(link => 
+                    link.id === editingAiLinkId 
+                        ? { ...link, name: tempAiLinkName, url: fixUrl(tempAiLinkUrl) }
+                        : link
+                ));
+                setEditingAiLinkId(null);
+                setTempAiLinkName("");
+                setTempAiLinkUrl("");
             };
 
             const totalCalculated = customScores.reduce((acc, curr) => acc + ( (parseInt(curr.value)||0) * (parseInt(curr.count)||0) ), 0);  //
@@ -1345,14 +1313,18 @@
                                     )}
                                 </div>
                                 )}
-                                <div className="grid grid-cols-2 gap-4">
-                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                                <div className="grid grid-cols-3 gap-3">
+                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
                                         <i className="fas fa-bell text-2xl"></i>
-                                        <span className="font-bold text-xs tracking-wide">HATIRLATICI</span>
+                                        <span className="font-bold text-[10px] tracking-wide">HATIRLATICI</span>
                                     </button>
-                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-6 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
+                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
                                         <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
-                                        <span className="font-bold text-xs tracking-wide">NOT DEFTERİ</span>
+                                        <span className="font-bold text-[10px] tracking-wide">NOT DEFTERİ</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('aiLinks')} style={{background:'linear-gradient(135deg,#6b4c08 0%,#b8860b 40%,#7c5c0a 70%,#d4a017 100%)',boxShadow:'inset 0 1px 1px rgba(255,215,0,0.3),0 2px 8px rgba(0,0,0,0.4)'}} className="text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                                        <i className="fas fa-robot text-2xl"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">AI ARAÇLARI</span>
                                     </button>
                                 </div>
                                 <button onClick={() => setActiveModal('p2pdf')} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-purple-700 hover:to-purple-800 transition shadow-lg">
@@ -1363,9 +1335,9 @@
                                     <i className="fas fa-link text-xl"></i>
                                     <span className="font-bold text-sm">ÖNEMLİ LİNKLER</span>
                                 </button>
-                                <button onClick={exportScheduleToPDF} className="w-full bg-slate-800 p-4 rounded-xl flex items-center justify-between border border-slate-700 hover:bg-slate-700 transition shadow-lg">
-                                    <span className="font-bold text-sm">📄 Ders Programı PDF İndir</span>
-                                    <i className="fas fa-download text-slate-500"></i>
+                                <button onClick={exportScheduleToPDF} className="w-full p-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95" style={{background:'linear-gradient(135deg,#9ca3af 0%,#f3f4f6 30%,#d1d5db 60%,#9ca3af 100%)',boxShadow:'inset 0 1px 2px rgba(255,255,255,0.9),0 3px 10px rgba(0,0,0,0.5)',border:'1px solid #6b7280'}}>
+                                    <i className="fas fa-download" style={{color:'#111'}}></i>
+                                    <span style={{color:'#111',fontWeight:'bold',fontSize:'13px'}}>📄 DERS PROGRAMI PDF İNDİR</span>
                                 </button>
                                 <button onClick={() => { setLessonSlots([{ id: Date.now(), day: "Pazartesi", startTime: "09:00", endTime: "10:00", classroom: "" }]); setLessonName(""); setLessonType("lisans"); setActiveModal('addLesson'); }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg">
                                     <i className="fas fa-plus-circle text-xl"></i>
@@ -1380,9 +1352,9 @@
                             <div className="animate-enter glass rounded-xl overflow-hidden border border-slate-700">
                                 <div className="p-3 bg-slate-800/50 flex justify-between items-center no-screenshot">
                                     <div className="text-xs font-bold text-slate-400 uppercase">Haftalık Program</div>
-                                    <button onClick={() => setIsScreenshotMode(true)} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-500 flex items-center gap-1">
+                                    <div className="flex gap-1"><button onClick={() => sendToNative({type:'CONFIRM_DELETE_SCHEDULE'})} className="bg-red-700 text-white px-2 py-1.5 rounded text-[10px] font-bold flex items-center gap-1"><i className="fas fa-trash"></i> Sil</button><button onClick={exportScheduleToPDF} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-500 flex items-center gap-1">
                                         <i className="fas fa-camera"></i> Ekran Görüntüsü
-                                    </button>
+                                    </button></div>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-xs border-collapse">
@@ -1444,45 +1416,66 @@
 
                     {/* SCREENSHOT MODE */}
                     {isScreenshotMode && (
-                        <div className="printable-content text-black h-screen p-8 bg-white fixed top-0 left-0 w-full z-[100] overflow-auto">
-                            <div className="text-center mb-6 border-b-2 border-black pb-4">
-                                <h1 className="text-3xl font-bold text-black uppercase tracking-wide">{user.name}</h1>
-                                <p className="text-lg text-gray-700 mt-1">{user.uni} • {user.title}</p>
-                                <p className="text-xs text-cyan-600 mt-1 signature">ZAPHYROS</p>
-                            </div>
-                            <div className="w-full">
-                                <h2 className="text-xl font-bold mb-4 text-center underline">HAFTALIK DERS PROGRAMI</h2>
-                                <table className="w-full text-xs border-collapse">
+                        <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:100,background:'#000',display:'flex',flexDirection:'column'}}>
+                            {/* Gizli yakalama alanı */}
+                            <div id="ss-capture-area" style={{position:'absolute',top:'-9999px',left:0,background:'white',padding:'16px',width:'700px'}}>
+                                <div style={{textAlign:'center',marginBottom:'12px',borderBottom:'2px solid black',paddingBottom:'8px'}}>
+                                    <div style={{fontSize:'18px',fontWeight:'bold',color:'black'}}>{user.name}</div>
+                                    <div style={{fontSize:'13px',color:'#555',marginTop:'4px'}}>{user.uni} • {user.title}</div>
+                                </div>
+                                <div style={{fontSize:'14px',fontWeight:'bold',textAlign:'center',marginBottom:'8px',textDecoration:'underline',color:'black'}}>HAFTALIK DERS PROGRAMI</div>
+                                <table style={{width:'100%',borderCollapse:'collapse',fontSize:'11px'}}>
                                     <thead>
                                         <tr>
-                                            <th className="p-3 border border-black bg-gray-100 font-bold text-sm">Saat</th>
-                                            {Object.keys(schedule).map(d => <th key={d} className="p-3 border border-black bg-gray-100 font-bold text-sm">{d}</th>)}
+                                            <th style={{padding:'6px',border:'1px solid black',background:'#f3f4f6',fontWeight:'bold'}}>Saat</th>
+                                            {Object.keys(schedule).map(d => <th key={d} style={{padding:'6px',border:'1px solid black',background:'#f3f4f6',fontWeight:'bold'}}>{d}</th>)}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {timeSlots.map((t, i) => (
                                             <tr key={i}>
-                                                <td className="p-2 border border-black text-center font-bold bg-gray-50">{t}</td>
-                                                {Object.keys(schedule).map(d => { 
-                                                    const l = schedule[d][i]; 
+                                                <td style={{padding:'4px',border:'1px solid black',textAlign:'center',fontWeight:'bold',background:'#fafafa',whiteSpace:'nowrap'}}>{t}</td>
+                                                {Object.keys(schedule).map(d => {
+                                                    const l = schedule[d][i];
                                                     return (
-                                                        <td key={d} className="p-1 border border-black h-12 text-center relative">
-                                                            {l && (
-                                                                <div className={`text-[10px] font-bold p-2 h-full flex flex-col items-center justify-center ${LESSON_TYPES[l.type].className}`} style={{border: '1px solid black', color: 'white'}}>
-                                                                    <span className="block truncate w-full">{l.name}</span>
-                                                                    {(l.startTime && l.endTime) && <span className="block text-[9px] bg-black/20 px-1 rounded my-0.5">{l.startTime} - {l.endTime}</span>}
-                                                                    {l.classroom && <span className="text-[8px] italic">{l.classroom}</span>}
-                                                                </div>
-                                                            )}
+                                                        <td key={d} style={{padding:'2px',border:'1px solid #333',textAlign:'center'}}>
+                                                            {l && <div className={`lesson-${l.type}`} style={{fontSize:'10px',fontWeight:'bold',padding:'4px',borderRadius:'4px',height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'1px'}}>
+                                                                <span>{l.name}</span>
+                                                                {l.startTime && <span style={{fontSize:'9px',opacity:0.85}}>{l.startTime}-{l.endTime}</span>}
+                                                                {l.classroom && <span style={{fontSize:'8px',opacity:0.75,fontStyle:'italic'}}>{l.classroom}</span>}
+                                                            </div>}
                                                         </td>
-                                                    )
+                                                    );
                                                 })}
                                             </tr>
                                         ))}
                                     </tbody>
                                 </table>
                             </div>
-                            <div className="mt-10 text-center text-sm text-gray-400 italic">(Moddan çıkmak için ekrana dokunun)</div>
+                            {/* Önizleme */}
+                            {ssImage ? (
+                                <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'8px'}}>
+                                    <img src={ssImage} style={{maxWidth:'100%',maxHeight:'80vh',objectFit:'contain',borderRadius:'8px'}} alt="ders programı" />
+                                    <div style={{display:'flex',gap:'10px',marginTop:'12px'}}>
+                                        <button onClick={() => { sendToNative({type:'SAVE_PDF', data:ssImage, filename:'ders-programi.png'}); }}
+                                            style={{background:'#2563eb',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold',fontSize:'14px'}}>
+                                            💾 Kaydet / Paylaş
+                                        </button>
+                                        <button onClick={() => { setIsScreenshotMode(false); setSsImage(null); }}
+                                            style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold',fontSize:'14px'}}>
+                                            ✕ Kapat
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'12px'}}>
+                                    <div style={{color:'white',fontSize:'16px'}}>⏳ Program hazırlanıyor...</div>
+                                    <button onClick={() => { setIsScreenshotMode(false); setSsImage(null); }}
+                                        style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontSize:'14px'}}>
+                                        İptal
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -1625,6 +1618,17 @@
                                                             >
                                                                 İptal
                                                             </button>
+                                                            <button 
+                                                                onClick={() => {
+                                                                    if(confirm("Bu linki silmek istiyor musunuz?")) {
+                                                                        setCustomLinks(customLinks.filter(l => l.id !== editingLinkId));
+                                                                        setEditingLinkId(null);
+                                                                    }
+                                                                }}
+                                                                className="bg-red-700 text-white py-2 px-3 rounded text-sm hover:bg-red-600"
+                                                            >
+                                                                <i className="fas fa-trash"></i>
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -1658,6 +1662,22 @@
                                         </div>
                                     ))}
                                 </div> {/* bg-slate-800 div'ini kapatır */}
+                                
+                                {/* Yeni Link Ekle Butonu */}
+                                <div className="mt-4 pt-4 border-t border-slate-700">
+                                    <button 
+                                        onClick={() => {
+                                            const newLink = {id: Date.now(), name: "Yeni Link", url: "", icon: "link"};
+                                            setCustomLinks([...customLinks, newLink]);
+                                            setEditingLinkId(newLink.id);
+                                            setTempLinkName("Yeni Link");
+                                            setTempLinkUrl("");
+                                        }}
+                                        className="w-full bg-slate-700 hover:bg-slate-600 border border-dashed border-slate-500 text-slate-300 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition"
+                                    >
+                                        <i className="fas fa-plus"></i> Yeni Link Ekle
+                                    </button>
+                                </div>
                             </div> {/* fixed inset-0 div'ini kapatır */}
                         </div>
                     )} {/* importantLinks modal bloğunu kapatır */}
@@ -1832,6 +1852,87 @@
                         </div>
                     )}
 
+                    {/* AI ARAÇLARI MODAL */}
+                    {activeModal === 'aiLinks' && (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
+                            <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[85vh] overflow-y-auto">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h3 className="text-white font-bold flex items-center gap-2"><i className="fas fa-robot text-violet-400"></i> AI Araçları</h3>
+                                    <button onClick={() => { setActiveModal(null); setEditingAiLinkId(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button>
+                                </div>
+                                
+                                <div className="space-y-2">
+                                    {aiLinks.map((link) => (
+                                        <div key={link.id}>
+                                            {editingAiLinkId === link.id ? (
+                                                <div className="bg-slate-700 p-3 rounded-lg border border-violet-500">
+                                                    <div className="space-y-2">
+                                                        <input 
+                                                            type="text"
+                                                            className="w-full input-dark p-2 rounded text-sm"
+                                                            placeholder="Buton adı..."
+                                                            value={tempAiLinkName}
+                                                            onChange={(e) => setTempAiLinkName(e.target.value)}
+                                                        />
+                                                        <input 
+                                                            type="url"
+                                                            className="w-full input-dark p-2 rounded text-sm"
+                                                            placeholder="https://..."
+                                                            value={tempAiLinkUrl}
+                                                            onChange={(e) => setTempAiLinkUrl(e.target.value)}
+                                                        />
+                                                        <div className="flex gap-2">
+                                                            <button onClick={saveAiLink} className="flex-1 bg-violet-600 text-white py-2 rounded text-sm hover:bg-violet-500">
+                                                                <i className="fas fa-check mr-1"></i> Kaydet
+                                                            </button>
+                                                            <button onClick={() => { setEditingAiLinkId(null); setTempAiLinkName(""); setTempAiLinkUrl(""); }} className="flex-1 bg-slate-600 text-white py-2 rounded text-sm hover:bg-slate-500">İptal</button>
+                                                            <button onClick={() => { if(confirm("Bu AI aracını silmek istiyor musunuz?")) { setAiLinks(aiLinks.filter(l => l.id !== editingAiLinkId)); setEditingAiLinkId(null); } }} className="bg-red-700 text-white py-2 px-3 rounded text-sm hover:bg-red-600"><i className="fas fa-trash"></i></button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ) : (
+                                                <div className="relative group">
+                                                    <button 
+                                                        onClick={() => handleAiLinkClick(link)}
+                                                        className={`w-full bg-gradient-to-r ${link.color} p-3 rounded-lg text-white flex items-center justify-between hover:opacity-90 transition shadow`}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <i className={`fas fa-${link.icon} text-lg`}></i>
+                                                            <span className="font-semibold text-sm">{link.name}</span>
+                                                        </div>
+                                                        <i className="fas fa-external-link-alt text-xs opacity-70"></i>
+                                                    </button>
+                                                    <button 
+                                                        onClick={(e) => { e.stopPropagation(); startEditAiLink(link); }}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition bg-white/20 hover:bg-white/30 text-white w-8 h-8 rounded-full flex items-center justify-center z-10"
+                                                    >
+                                                        <i className="fas fa-edit text-xs"></i>
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                                
+                                <div className="mt-4 pt-4 border-t border-slate-700">
+                                    <button 
+                                        onClick={() => {
+                                            const newLink = {id: Date.now(), name: "Yeni AI Aracı", url: "", icon: "robot", color: "from-slate-600 to-slate-700"};
+                                            setAiLinks([...aiLinks, newLink]);
+                                            setEditingAiLinkId(newLink.id);
+                                            setTempAiLinkName("Yeni AI Aracı");
+                                            setTempAiLinkUrl("");
+                                        }}
+                                        className="w-full bg-slate-700 hover:bg-slate-600 border border-dashed border-slate-500 text-slate-300 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition mb-3"
+                                    >
+                                        <i className="fas fa-plus"></i> Yeni AI Aracı Ekle
+                                    </button>
+                                    <p className="text-[10px] text-slate-500 text-center"><i className="fas fa-info-circle mr-1"></i>Buton üzerinde kaydırarak düzenle ikonuna ulaşabilirsiniz</p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     {/* AYARLAR MODAL */}
                     {activeModal === 'p2pdf' && (
                         <P2PdfModal
@@ -1842,7 +1943,7 @@
                         />
                     )}
 
-                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" />
+                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Unvan</label><select name="title" defaultValue={user.title} className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select></div><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" />
                                 <div className="mb-4">
                                     <label className="text-xs text-slate-400 block mb-2">🔔 Bildirim Sesi</label>
                                     <div className="grid grid-cols-2 gap-2">
