@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Akademik Asistan V2.0</title>
+    <title>Akademik Asistan V1.1</title>
     
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
     <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
@@ -126,7 +126,7 @@
                     if(data.user) { localStorage.setItem('user_v48', JSON.stringify(data.user)); }
                     if(data.tasks) { localStorage.setItem('tasks_v48', JSON.stringify(data.tasks)); }
                     if(data.completedTasks) { localStorage.setItem('completed_tasks_v48', JSON.stringify(data.completedTasks)); }
-                    if(data.schedule) { localStorage.setItem('schedule_v48', JSON.stringify(data.schedule)); }
+                    if(data.schedule) { localStorage.setItem('schedule_v49', JSON.stringify(data.schedule)); }
                     if(data.customScores) { localStorage.setItem('scores_v48', JSON.stringify(data.customScores)); }
                     if(data.notes) { localStorage.setItem('notes_v48', JSON.stringify(data.notes)); }
                     if(data.academicCalendarUrl) { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(data.academicCalendarUrl)); }
@@ -179,7 +179,7 @@
     function scheduleAllNotifications() {
         try {
             var tasks = JSON.parse(localStorage.getItem('tasks_v48') || '[]');
-            var schedule = JSON.parse(localStorage.getItem('schedule_v48') || '{}');
+            var schedule = JSON.parse(localStorage.getItem('schedule_v49') || '{}');
             var now = new Date();
             var minTime = new Date(now.getTime() + 11 * 60 * 1000); // en az 11 dk sonrası
             
@@ -194,7 +194,7 @@
             
             // Haftalık ders programından bildirim oluştur (7 gün için)
             var dayNames = ["Pazar","Pazartesi","Sali","Carsamba","Persembe","Cuma","Cumartesi"];
-            var timeSlots = JSON.parse(localStorage.getItem('timeslots_v48') || '["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00"]');
+            var timeSlots = JSON.parse(localStorage.getItem('timeslots_v49') || '["08:00","09:00","10:00","11:00","12:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00","20:00","21:00","22:00","23:00"]');
             
             for (var dayOffset = 0; dayOffset < 7; dayOffset++) {
                 var d = new Date(now);
@@ -491,10 +491,10 @@
             const [tasks, setTasks] = useState(() => safeGet('tasks_v48', []));
             const [completedTasks, setCompletedTasks] = useState(() => safeGet('completed_tasks_v48', []));
             const [notes, setNotes] = useState(() => safeGet('notes_v48', []));
-            const [schedule, setSchedule] = useState(() => safeGet('schedule_v48', {
-                Pazartesi: Array(13).fill(null), Sali: Array(13).fill(null), Carsamba: Array(13).fill(null), Persembe: Array(13).fill(null), Cuma: Array(13).fill(null), Cumartesi: Array(13).fill(null), Pazar: Array(13).fill(null)
+            const [schedule, setSchedule] = useState(() => safeGet('schedule_v49', {
+                'Pazartesi': Array(16).fill(null), 'Salı': Array(16).fill(null), 'Çarşamba': Array(16).fill(null), 'Perşembe': Array(16).fill(null), 'Cuma': Array(16).fill(null), 'Cumartesi': Array(16).fill(null), 'Pazar': Array(16).fill(null)
             }));
-            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_v48', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"]));
+            const [timeSlots, setTimeSlots] = useState(() => safeGet('timeslots_v49', ["08:00", "09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00", "21:00", "22:00", "23:00"]));
             const [customScores, setCustomScores] = useState(() => safeGet('scores_v48', [{ id: 1, name: "Makale", value: 20, count: 0 }]));
             const [targetScore, setTargetScore] = useState(() => safeGet('target_score_v48', 100));
             const [calendarEvents, setCalendarEvents] = useState(() => safeGet('calendar_v48', ACADEMIC_DATA['default']));
@@ -568,9 +568,9 @@
                 window.__deleteSchedule = () => {
                     const days = ['Pazartesi','Salı','Çarşamba','Perşembe','Cuma','Cumartesi','Pazar'];
                     const empty = {};
-                    days.forEach(d => { empty[d] = Array(14).fill(null); });
+                    days.forEach(d => { empty[d] = Array(16).fill(null); });
                     setSchedule(empty);
-                    try { localStorage.removeItem('schedule_v48'); } catch(e) {}
+                    try { localStorage.removeItem('schedule_v49'); } catch(e) {}
                 };
                 window.__addPhotos = (images) => {
                     setP2pdfImages(prev => [...prev, ...images]);
@@ -580,6 +580,8 @@
             const [selectedNode, setSelectedNode] = useState(null);
             const [isScreenshotMode, setIsScreenshotMode] = useState(false);
             const [ssImage, setSsImage] = useState(null);
+            const [annualMonth, setAnnualMonth] = React.useState(new Date().getMonth());
+            const [annualYear, setAnnualYear] = React.useState(new Date().getFullYear());
             const [alertState, setAlertState] = useState(null); 
             const [conflictWarn, setConflictWarn] = useState(null);
             const [dismissedAlerts, setDismissedAlerts] = useState([]);
@@ -616,12 +618,31 @@
             useEffect(() => { localStorage.setItem('user_v48', JSON.stringify(user)); }, [user]);
             useEffect(() => { localStorage.setItem('tasks_v48', JSON.stringify(tasks)); }, [tasks]);
             useEffect(() => { localStorage.setItem('completed_tasks_v48', JSON.stringify(completedTasks)); }, [completedTasks]);
-            useEffect(() => { localStorage.setItem('schedule_v48', JSON.stringify(schedule)); }, [schedule]);
+            useEffect(() => {
+                // schedule slot sayısını timeSlots uzunluğuna normalize et
+                const needsResize = Object.values(schedule).some(arr => arr.length !== timeSlots.length);
+                if (needsResize) {
+                    const fixed = {};
+                    Object.keys(schedule).forEach(day => {
+                        const arr = schedule[day] || [];
+                        if (arr.length < timeSlots.length) {
+                            fixed[day] = [...arr, ...Array(timeSlots.length - arr.length).fill(null)];
+                        } else if (arr.length > timeSlots.length) {
+                            fixed[day] = arr.slice(0, timeSlots.length);
+                        } else {
+                            fixed[day] = arr;
+                        }
+                    });
+                    setSchedule(fixed);
+                    return;
+                }
+                localStorage.setItem('schedule_v49', JSON.stringify(schedule));
+            }, [schedule, timeSlots]);
             useEffect(() => { localStorage.setItem('notes_v48', JSON.stringify(notes)); }, [notes]);
             useEffect(() => { localStorage.setItem('calendar_v48', JSON.stringify(calendarEvents)); }, [calendarEvents]);
             useEffect(() => { localStorage.setItem('scores_v48', JSON.stringify(customScores)); }, [customScores]);
             useEffect(() => { localStorage.setItem('target_score_v48', JSON.stringify(targetScore)); }, [targetScore]);
-            useEffect(() => { localStorage.setItem('timeslots_v48', JSON.stringify(timeSlots)); }, [timeSlots]);
+            useEffect(() => { localStorage.setItem('timeslots_v49', JSON.stringify(timeSlots)); }, [timeSlots]);
             useEffect(() => { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(academicCalendarUrl)); }, [academicCalendarUrl]);
             useEffect(() => { safeSave('notif_sound_v48', notifSound); }, [notifSound]);
             
@@ -924,9 +945,10 @@
                 const duration = data.duration ? parseInt(data.duration) : 1;
                 if (!duration) return; 
 
-                if (index + duration > 13) { alert("Ders günün bitiş saatini aşıyor!"); return; } 
+                const actualDuration = Math.min(duration, timeSlots.length - index);
+                if (actualDuration <= 0) return;
                 const batchId = data.batchId || Date.now(); 
-                for (let i = 0; i < duration; i++) { 
+                for (let i = 0; i < actualDuration; i++) { 
                     newSchedule[day][index + i] = { ...data, duration: 1, batchId: batchId }; 
                 } 
                 setSchedule(newSchedule); setActiveModal(null); 
@@ -970,10 +992,10 @@
                             break;
                         }
                     }
+                    if (startSlotIndex === -1) startSlotIndex = timeSlots.length - 1;
 
-                    if (startSlotIndex === -1) return;
-
-                    for (let i = 0; i < durationHours && (startSlotIndex + i) < timeSlots.length; i++) {
+                    for (let i = 0; (startSlotIndex + i) < timeSlots.length; i++) {
+                        if (i >= durationHours) break;
                         newSchedule[slot.day][startSlotIndex + i] = {
                             name: lessonName,
                             type: lessonType,
@@ -1052,15 +1074,10 @@
                     try {
                         const el = document.getElementById('ss-capture-area');
                         if (!el || typeof html2canvas === 'undefined') return;
-                        const canvas = await html2canvas(el, {
-                            backgroundColor: '#ffffff',
-                            scale: 2,
-                            useCORS: true,
-                            logging: false
-                        });
+                        const canvas = await html2canvas(el, { backgroundColor: '#ffffff', scale: 2, useCORS: true, logging: false });
                         const imgData = canvas.toDataURL('image/png');
                         window.__setSsImage && window.__setSsImage(imgData);
-                    } catch(e) { console.log('html2canvas hata:', e); }
+                    } catch(e) {}
                 }, 300);
             };
 
@@ -1291,6 +1308,21 @@
                         {view === 'home' && (
                             <div className="animate-enter space-y-4">
                                 {user.url && (
+                                    <>
+                                    <div className="grid grid-cols-3 gap-3">
+                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-bell text-2xl"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">HATIRLATICI</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
+                                        <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">NOT DEFTERİ</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('aiLinks')} style={{background:'linear-gradient(135deg,#6b4c08 0%,#b8860b 40%,#7c5c0a 70%,#d4a017 100%)'}} className="text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
+                                        <i className="fas fa-robot text-2xl"></i>
+                                        <span className="font-bold text-[10px] tracking-wide">AI ARAÇLARI</span>
+                                    </button>
+                                </div>
                                     <div className="relative mb-2">
                                     <button onClick={() => { if(academicCalendarUrl) { window.open(fixUrl(academicCalendarUrl), '_blank'); } else { setActiveModal('academicCalendar'); } }} className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg">
                                         <div className="flex items-center gap-4">
@@ -1312,21 +1344,9 @@
                                         </button>
                                     )}
                                 </div>
+                                    </>
                                 )}
-                                <div className="grid grid-cols-3 gap-3">
-                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-bell text-2xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">HATIRLATICI</span>
-                                    </button>
-                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">NOT DEFTERİ</span>
-                                    </button>
-                                    <button onClick={() => setActiveModal('aiLinks')} style={{background:'linear-gradient(135deg,#6b4c08 0%,#b8860b 40%,#7c5c0a 70%,#d4a017 100%)',boxShadow:'inset 0 1px 1px rgba(255,215,0,0.3),0 2px 8px rgba(0,0,0,0.4)'}} className="text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
-                                        <i className="fas fa-robot text-2xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">AI ARAÇLARI</span>
-                                    </button>
-                                </div>
+                                
                                 <button onClick={() => setActiveModal('p2pdf')} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-purple-700 hover:to-purple-800 transition shadow-lg">
                                     <i className="fas fa-file-pdf text-xl"></i>
                                     <span className="font-bold text-sm">P2PDF</span>
@@ -1335,9 +1355,9 @@
                                     <i className="fas fa-link text-xl"></i>
                                     <span className="font-bold text-sm">ÖNEMLİ LİNKLER</span>
                                 </button>
-                                <button onClick={exportScheduleToPDF} className="w-full p-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95" style={{background:'linear-gradient(135deg,#9ca3af 0%,#f3f4f6 30%,#d1d5db 60%,#9ca3af 100%)',boxShadow:'inset 0 1px 2px rgba(255,255,255,0.9),0 3px 10px rgba(0,0,0,0.5)',border:'1px solid #6b7280'}}>
+                                <button onClick={exportScheduleToPDF} className="w-full p-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95" style={{background:'linear-gradient(135deg,#9ca3af 0%,#f3f4f6 30%,#d1d5db 60%,#9ca3af 100%)',border:'1px solid #6b7280'}}>
                                     <i className="fas fa-download" style={{color:'#111'}}></i>
-                                    <span style={{color:'#111',fontWeight:'bold',fontSize:'13px'}}>📄 DERS PROGRAMI PDF İNDİR</span>
+                                    <span style={{color:'#111',fontWeight:'bold',fontSize:'13px'}}>DERS PROGRAMI INDIR</span>
                                 </button>
                                 <button onClick={() => { setLessonSlots([{ id: Date.now(), day: "Pazartesi", startTime: "09:00", endTime: "10:00", classroom: "" }]); setLessonName(""); setLessonType("lisans"); setActiveModal('addLesson'); }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg">
                                     <i className="fas fa-plus-circle text-xl"></i>
@@ -1345,8 +1365,62 @@
                                 </button>
                             </div>
                         )}{/* ANNUAL VIEW */}
-                        {view === 'annual' && (<div className="animate-enter pb-16"><div className="flex justify-between items-center mb-4"><h3 className="text-slate-300 font-bold text-sm uppercase">Yıllık Takvim</h3><div className="flex gap-2"><button onClick={() => window.open(user.url, '_blank')} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700 hover:text-white transition">Üni. Web</button><button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700 hover:border-blue-500 hover:text-white transition">ICS Yükle</button><input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" /></div></div><div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">{Array.from({length: 12}, (_, i) => i).map(monthIdx => { const year = new Date().getFullYear(); const date = new Date(year, monthIdx, 1); const monthName = date.toLocaleString('tr-TR', { month: 'long' }); const daysInMonth = new Date(year, monthIdx + 1, 0).getDate(); const startDay = new Date(year, monthIdx, 1).getDay(); const offset = startDay === 0 ? 6 : startDay - 1; const today = new Date(); const isCurrentMonth = today.getMonth() === monthIdx && today.getFullYear() === year; const currentDay = today.getDate(); return (<div key={monthIdx} className="glass rounded-lg border border-slate-700 overflow-hidden"><div className="bg-slate-800 p-2 text-center font-bold text-blue-200 text-xs uppercase">{monthName}</div><div className="grid grid-cols-7 text-[9px] text-slate-500 text-center py-1 bg-slate-900/30"><span>Pt</span><span>Sa</span><span>Ça</span><span>Pe</span><span>Cu</span><span>Ct</span><span>Pa</span></div><div className="grid grid-cols-7 gap-px bg-slate-800 p-px">{Array(offset).fill(null).map((_,k)=><div key={`e-${k}`} className="bg-slate-900 h-6"></div>)}{Array(daysInMonth).fill(null).map((_,k)=>{ const d = k+1; const dStr = `${year}-${String(monthIdx+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`; const events = getAllEvents().filter(e => e.date === dStr); let bg = "bg-slate-900 hover:bg-slate-700"; let text = "text-slate-500"; if (isCurrentMonth && d === currentDay) { bg = "bg-cyan-500 shadow-lg shadow-cyan-500/50 z-10 scale-110 rounded"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'academic')) { bg = "bg-red-900"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'special')) { bg = "bg-pink-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'official')) { bg = "bg-amber-700"; text = "text-white font-bold"; } else if(events.some(e => e.category === 'daily')) { bg = "bg-blue-900"; text = "text-white font-bold"; } return (<button key={d} onClick={() => handleDayClick(dStr, events)} className={`h-6 flex items-center justify-center text-[9px] ${bg} ${text}`}>{d}</button>) })}</div></div>) })}</div></div>)}
-                        
+                        {view === 'annual' && (
+                        <div className="animate-enter pb-16">
+                            <div className="flex justify-between items-center mb-3">
+                                <div className="flex gap-2">
+                                    <button onClick={() => window.open(user.url, '_blank')} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700">Üni Web</button>
+                                    <button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700">ICS Yükle</button>
+                                    <button onClick={() => { setAnnualMonth(new Date().getMonth()); setAnnualYear(new Date().getFullYear()); }} className="text-[11px] bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1.5 rounded border border-cyan-500 font-bold flex items-center gap-1"><i className="fas fa-calendar-day"></i> Bugüne Dön</button>
+                                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" />
+                                </div>
+                            </div>
+                            <div className="glass rounded-lg border border-slate-700 overflow-hidden">
+                                <div className="bg-slate-800 p-3 flex items-center justify-between">
+                                    <button onClick={() => { if(annualMonth===0){setAnnualMonth(11);setAnnualYear(y=>y-1);}else setAnnualMonth(m=>m-1); }} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-600 text-slate-200 text-xl font-bold">&lt;</button>
+                                    <span className="font-bold text-blue-200 text-sm uppercase">
+                                        {new Date(annualYear, annualMonth, 1).toLocaleString('tr-TR', {month:'long', year:'numeric'})}
+                                    </span>
+                                    <button onClick={() => { if(annualMonth===11){setAnnualMonth(0);setAnnualYear(y=>y+1);}else setAnnualMonth(m=>m+1); }} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-600 text-slate-200 text-xl font-bold">&gt;</button>
+                                </div>
+                                <div className="grid grid-cols-7 text-[10px] text-slate-400 text-center py-2 bg-slate-900/30 font-bold border-b border-slate-700">
+                                    {['Pt','Sa','Ca','Pe','Cu','Ct','Pa'].map(d=><span key={d}>{d}</span>)}
+                                </div>
+                                <div className="grid grid-cols-7 p-1 gap-0.5">
+                                    {Array(new Date(annualYear,annualMonth,1).getDay()===0?6:new Date(annualYear,annualMonth,1).getDay()-1).fill(null).map((_,k)=>(
+                                        <div key={"e"+k} className="h-11"></div>
+                                    ))}
+                                    {Array(new Date(annualYear,annualMonth+1,0).getDate()).fill(null).map((_,k)=>{
+                                        const d=k+1;
+                                        const td=new Date();
+                                        const dStr=annualYear+"-"+String(annualMonth+1).padStart(2,'0')+"-"+String(d).padStart(2,'0');
+                                        const events=getAllEvents().filter(e=>e.date===dStr);
+                                        const isToday=td.getFullYear()===annualYear&&td.getMonth()===annualMonth&&td.getDate()===d;
+                                        let bg='bg-slate-900/80 hover:bg-slate-700',text='text-slate-400';
+                                        if(isToday){bg='bg-cyan-500 rounded-lg';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='academic')){bg='bg-red-900/80';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='special')){bg='bg-pink-700/80';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='official')){bg='bg-amber-700/80';text='text-white font-bold';}
+                                        else if(events.some(e=>e.category==='daily')){bg='bg-blue-900/80';text='text-white font-bold';}
+                                        return(
+                                            <button key={d} onClick={()=>handleDayClick(dStr,events)} className={"h-11 flex flex-col items-center justify-center rounded text-xs "+bg+" "+text}>
+                                                <span>{d}</span>
+                                                {events.length>0&&<span className="w-1 h-1 rounded-full bg-white/80 mt-0.5"></span>}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                                <div className="p-3 flex flex-wrap gap-2 border-t border-slate-700">
+                                    {[['bg-red-900','Akademik'],['bg-pink-700','Ozel'],['bg-amber-700','Resmi'],['bg-blue-900','Kisisel'],['bg-cyan-500','Bugun']].map(([c,l])=>(
+                                        <div key={l} className="flex items-center gap-1">
+                                            <div className={"w-3 h-3 rounded "+c}></div>
+                                            <span className="text-[10px] text-slate-400">{l}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
                         {/* SCHEDULE VIEW */}
                         {view === 'schedule' && (
                             <div className="animate-enter glass rounded-xl overflow-hidden border border-slate-700">
@@ -1417,33 +1491,26 @@
                     {/* SCREENSHOT MODE */}
                     {isScreenshotMode && (
                         <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:100,background:'#000',display:'flex',flexDirection:'column'}}>
-                            {/* Gizli yakalama alanı */}
-                            <div id="ss-capture-area" style={{position:'absolute',top:'-9999px',left:0,background:'white',padding:'16px',width:'700px'}}>
+                            <div id="ss-capture-area" style={{position:'absolute',top:'-9999px',left:0,background:'white',padding:'12px',width:'680px',fontFamily:'Arial,sans-serif'}}>
                                 <div style={{textAlign:'center',marginBottom:'12px',borderBottom:'2px solid black',paddingBottom:'8px'}}>
                                     <div style={{fontSize:'18px',fontWeight:'bold',color:'black'}}>{user.name}</div>
-                                    <div style={{fontSize:'13px',color:'#555',marginTop:'4px'}}>{user.uni} • {user.title}</div>
+                                    <div style={{fontSize:'13px',color:'#555',marginTop:'4px'}}>{user.uni} - {user.title}</div>
                                 </div>
-                                <div style={{fontSize:'14px',fontWeight:'bold',textAlign:'center',marginBottom:'8px',textDecoration:'underline',color:'black'}}>HAFTALIK DERS PROGRAMI</div>
-                                <table style={{width:'100%',borderCollapse:'collapse',fontSize:'11px'}}>
-                                    <thead>
-                                        <tr>
-                                            <th style={{padding:'6px',border:'1px solid black',background:'#f3f4f6',fontWeight:'bold'}}>Saat</th>
-                                            {Object.keys(schedule).map(d => <th key={d} style={{padding:'6px',border:'1px solid black',background:'#f3f4f6',fontWeight:'bold'}}>{d}</th>)}
-                                        </tr>
-                                    </thead>
+                                <table style={{width:'100%',borderCollapse:'collapse',fontSize:'10px',tableLayout:'fixed'}}>
+                                    <thead><tr>
+                                        <th style={{padding:'4px',border:'1px solid black',background:'#f3f4f6',width:'48px',fontSize:'9px'}}>Saat</th>
+                                        {Object.keys(schedule).map(d=><th key={d} style={{padding:'4px',border:'1px solid black',background:'#f3f4f6',fontSize:'9px',textAlign:'center'}}>{d}</th>)}
+                                    </tr></thead>
                                     <tbody>
-                                        {timeSlots.map((t, i) => (
+                                        {timeSlots.map((t,i)=>(
                                             <tr key={i}>
-                                                <td style={{padding:'4px',border:'1px solid black',textAlign:'center',fontWeight:'bold',background:'#fafafa',whiteSpace:'nowrap'}}>{t}</td>
-                                                {Object.keys(schedule).map(d => {
-                                                    const l = schedule[d][i];
-                                                    return (
+                                                <td style={{padding:'3px',border:'1px solid black',textAlign:'center',fontWeight:'bold',background:'#fafafa',fontSize:'8px',whiteSpace:'nowrap'}}>{t}</td>
+                                                {Object.keys(schedule).map(d=>{
+                                                    const l=schedule[d][i];
+                                                    const colors={lisans:'#0d9488',yuksek:'#4f46e5',doktora:'#e11d48',seminer:'#d97706'};
+                                                    return(
                                                         <td key={d} style={{padding:'2px',border:'1px solid #333',textAlign:'center'}}>
-                                                            {l && <div className={`lesson-${l.type}`} style={{fontSize:'10px',fontWeight:'bold',padding:'4px',borderRadius:'4px',height:'100%',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'1px'}}>
-                                                                <span>{l.name}</span>
-                                                                {l.startTime && <span style={{fontSize:'9px',opacity:0.85}}>{l.startTime}-{l.endTime}</span>}
-                                                                {l.classroom && <span style={{fontSize:'8px',opacity:0.75,fontStyle:'italic'}}>{l.classroom}</span>}
-                                                            </div>}
+                                                            {l&&<div style={{fontSize:'8px',fontWeight:'bold',padding:'2px',borderRadius:'3px',background:colors[l.type]||'#6b7280',color:'white',overflow:'hidden',wordBreak:'break-word'}}><div>{l.name}</div>{l.startTime&&<div style={{fontSize:'7px',opacity:0.9}}>{l.startTime}-{l.endTime}</div>}{l.classroom&&<div style={{fontSize:'7px',opacity:0.85,fontStyle:'italic'}}>{l.classroom}</div>}</div>}
                                                         </td>
                                                     );
                                                 })}
@@ -1452,28 +1519,18 @@
                                     </tbody>
                                 </table>
                             </div>
-                            {/* Önizleme */}
                             {ssImage ? (
                                 <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'8px'}}>
-                                    <img src={ssImage} style={{maxWidth:'100%',maxHeight:'80vh',objectFit:'contain',borderRadius:'8px'}} alt="ders programı" />
+                                    <img src={ssImage} style={{maxWidth:'100%',maxHeight:'80vh',objectFit:'contain',borderRadius:'8px'}} alt="program" />
                                     <div style={{display:'flex',gap:'10px',marginTop:'12px'}}>
-                                        <button onClick={() => { sendToNative({type:'SAVE_PDF', data:ssImage, filename:'ders-programi.png'}); }}
-                                            style={{background:'#2563eb',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold',fontSize:'14px'}}>
-                                            💾 Kaydet / Paylaş
-                                        </button>
-                                        <button onClick={() => { setIsScreenshotMode(false); setSsImage(null); }}
-                                            style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold',fontSize:'14px'}}>
-                                            ✕ Kapat
-                                        </button>
+                                        <button onClick={()=>sendToNative({type:'SAVE_PDF',data:ssImage,filename:'ders-programi.png'})} style={{background:'#2563eb',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold'}}>Kaydet</button>
+                                        <button onClick={()=>{setIsScreenshotMode(false);setSsImage(null);}} style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontWeight:'bold'}}>Kapat</button>
                                     </div>
                                 </div>
                             ) : (
                                 <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:'12px'}}>
-                                    <div style={{color:'white',fontSize:'16px'}}>⏳ Program hazırlanıyor...</div>
-                                    <button onClick={() => { setIsScreenshotMode(false); setSsImage(null); }}
-                                        style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px',fontSize:'14px'}}>
-                                        İptal
-                                    </button>
+                                    <div style={{color:'white',fontSize:'16px'}}>Hazirlaniyor...</div>
+                                    <button onClick={()=>{setIsScreenshotMode(false);setSsImage(null);}} style={{background:'#374151',color:'white',border:'none',borderRadius:'10px',padding:'10px 20px'}}>Iptal</button>
                                 </div>
                             )}
                         </div>
@@ -1964,7 +2021,7 @@
                                 <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.json)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
                     
                     {/* GÖREV EKLEME/DÜZENLEME MODAL */}
-                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe - Yıllık Tekrar)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">Rutin Tekrar Seçeneği</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">Tekrar Yok</option><option value="weekly">Haftalık</option><option value="biweekly">İki Haftada Bir</option><option value="monthly">Aylık</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">12 ay boyunca her ay tekrarlanacak</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>Özel günler her yıl otomatik olarak tekrarlanır</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
+                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="academic">Akademik (Kırmızı)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe - Yıllık Tekrar)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">Rutin Tekrar Seçeneği</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">Tekrar Yok</option><option value="weekly">Haftalık</option><option value="biweekly">İki Haftada Bir</option><option value="monthly">Aylık</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">12 ay boyunca her ay tekrarlanacak</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>Özel günler her yıl otomatik olarak tekrarlanır</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
                     
                     {/* NOTLAR MODAL */}
                     {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Notunuz..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
