@@ -16,40 +16,82 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <style>
-        body { 
-            font-family: 'Inter', sans-serif; 
-            background-color: #0f172a; 
-            color: #e2e8f0; 
-            -webkit-tap-highlight-color: transparent; 
+        :root {
+          --bg-deep: #060b18;
+          --bg-card: #0d1526;
+          --bg-elevated: #111d35;
+          --accent: #6366f1;
+          --accent-light: #818cf8;
+          --accent-glow: rgba(99, 102, 241, 0.25);
+          --purple: #8b5cf6;
+          --emerald: #10b981;
+          --amber: #f59e0b;
+          --rose: #f43f5e;
+          --pink: #ec4899;
+          --border: rgba(99, 102, 241, 0.12);
+          --text-primary: #f1f5f9;
+          --text-secondary: #94a3b8;
+          --text-muted: #475569;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-primary);
+            -webkit-tap-highlight-color: transparent;
             user-select: none;
             overflow-x: hidden;
         }
-        
-        .glass { 
-            background: rgba(30, 41, 59, 0.7); 
-            backdrop-filter: blur(12px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
+
+        .glass {
+            background: rgba(13, 21, 38, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.12);
         }
 
-        .input-dark { 
-            background: #1e293b; 
-            border: 1px solid #334155; 
-            color: white; 
-            transition: all 0.3s; 
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
         }
-        .input-dark:focus { border-color: #3b82f6; outline: none; }
 
-        .signature { 
-            font-family: 'Orbitron', monospace; 
-            letter-spacing: 2px; 
+        .input-dark {
+            background: rgba(6, 11, 24, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            color: #f1f5f9;
+            border-radius: 12px;
+            transition: all 0.2s;
+        }
+        .input-dark:focus {
+            border-color: #6366f1;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .signature {
+            font-family: 'Orbitron', monospace;
+            letter-spacing: 2px;
             font-weight: 900;
             text-transform: uppercase;
         }
-        
-        @keyframes pulse-red { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-        .urgent-pulse { animation: pulse-red 2s infinite; }
-        
-        /* Kalp Atışı Animasyonları */
+
+        @keyframes slideUp {
+            from { transform: translateY(60px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.97); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .animate-enter { animation: fadeIn 0.2s ease; }
+
+        @keyframes pulse-red {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+        .urgent-pulse { animation: pulse-red 1.5s infinite; }
+
         @keyframes heartbeat-slow {
             0%, 100% { transform: scale(1); }
             10% { transform: scale(1.1); }
@@ -57,56 +99,46 @@
             30% { transform: scale(1.1); }
             40% { transform: scale(1); }
         }
-        
+
         @keyframes heartbeat-fast {
             0%, 100% { transform: scale(1); }
             25% { transform: scale(1.2); }
             50% { transform: scale(1); }
             75% { transform: scale(1.2); }
         }
-        
-        .heartbeat-slow {
-            animation: heartbeat-slow 2s ease-in-out infinite;
-        }
-        
-        .heartbeat-fast {
-            animation: heartbeat-fast 1s ease-in-out infinite;
-        }
-        
-        /* Ekran Görüntüsü Modu */
+
+        .heartbeat-slow { animation: heartbeat-slow 2s ease-in-out infinite; }
+        .heartbeat-fast { animation: heartbeat-fast 1s ease-in-out infinite; }
+
         .screenshot-mode { background-color: #ffffff !important; color: #000000 !important; }
         .screenshot-mode .app-container { background-color: #ffffff !important; box-shadow: none !important; }
         .screenshot-mode .no-screenshot { display: none !important; }
-        .screenshot-mode .glass { 
-            background: white !important; 
-            border: 1px solid #000 !important; 
-            color: black !important; 
-            box-shadow: none !important; 
+        .screenshot-mode .glass {
+            background: white !important;
+            border: 1px solid #000 !important;
+            color: black !important;
+            box-shadow: none !important;
             backdrop-filter: none !important;
         }
         .screenshot-mode th { background-color: #f3f4f6 !important; color: black !important; border: 1px solid #000 !important; }
         .screenshot-mode td { border: 1px solid #000 !important; color: black !important; }
         .screenshot-mode input { color: black !important; background: transparent !important; border: none !important; text-align: center; }
 
-        /* Ders Renkleri */
-        .lesson-lisans { background: linear-gradient(135deg, #0d9488 0%, #115e59 100%) !important; border-left: 3px solid #5eead4 !important; color: white !important; } 
-        .lesson-yuksek { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important; border-left: 3px solid #a5b4fc !important; color: white !important; } 
-        .lesson-doktora { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important; border-left: 3px solid #fda4af !important; color: white !important; } 
-        .lesson-seminer { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; border-left: 3px solid #fcd34d !important; color: white !important; } 
-        
-        /* Buton Renkleri */
+        .lesson-lisans { background: linear-gradient(135deg, #0d9488 0%, #115e59 100%) !important; border-left: 3px solid #5eead4 !important; color: white !important; }
+        .lesson-yuksek { background: linear-gradient(135deg, #4f46e5 0%, #4338ca 100%) !important; border-left: 3px solid #a5b4fc !important; color: white !important; }
+        .lesson-doktora { background: linear-gradient(135deg, #e11d48 0%, #be123c 100%) !important; border-left: 3px solid #fda4af !important; color: white !important; }
+        .lesson-seminer { background: linear-gradient(135deg, #d97706 0%, #b45309 100%) !important; border-left: 3px solid #fcd34d !important; color: white !important; }
+
         .btn-lisans { background-color: #0d9488; color: white; border: 1px solid #5eead4; }
         .btn-yuksek { background-color: #4f46e5; color: white; border: 1px solid #a5b4fc; }
         .btn-doktora { background-color: #e11d48; color: white; border: 1px solid #fda4af; }
         .btn-seminer { background-color: #d97706; color: white; border: 1px solid #fcd34d; }
 
-        /* Drag & Drop */
-        .dragging { opacity: 0.5; }
-        .drag-over { border: 2px dashed #3b82f6 !important; background: rgba(59, 130, 246, 0.1); }
+        .dragging { opacity: 0.4; }
+        .drag-over { border: 2px dashed #6366f1 !important; background: rgba(99, 102, 241, 0.08); }
 
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+        ::-webkit-scrollbar { width: 3px; }
+        ::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.3); border-radius: 2px; }
         ::-webkit-calendar-picker-indicator { filter: invert(1); }
     </style>
 
@@ -141,6 +173,14 @@
                 alert("✅ Yedek dosyası kaydedildi ve paylaşım menüsü açıldı.");
             } else if (msg.type === 'PHOTO_SELECTED' && msg.images) {
                 if (window.__addPhotos) window.__addPhotos(msg.images);
+            } else if (msg.type === 'CALENDAR_PULL_SUCCESS' && msg.events) {
+                localStorage.setItem('googleEvents_v1', JSON.stringify(msg.events));
+                if (window.__onGooglePull) window.__onGooglePull(msg.events);
+                alert('✅ ' + msg.events.length + ' etkinlik Google Calendar\'dan çekildi.');
+            } else if (msg.type === 'CALENDAR_ADD_SUCCESS') {
+                if (window.__onCalendarAddSuccess) window.__onCalendarAddSuccess(msg.id, msg.calendarEventId, msg.calendarId);
+            } else if (msg.type === 'CALENDAR_SYNC_SUCCESS' && msg.results) {
+                if (window.__onCalendarSyncSuccess) window.__onCalendarSyncSuccess(msg.results);
             }
         } catch(e) { console.error('Bridge hata:', e); }
     }
@@ -181,7 +221,7 @@
             var tasks = JSON.parse(localStorage.getItem('tasks_v48') || '[]');
             var schedule = JSON.parse(localStorage.getItem('schedule_v49') || '{}');
             var now = new Date();
-            var minTime = new Date(now.getTime() + 11 * 60 * 1000); // en az 11 dk sonrası
+            var minTime = new Date(now.getTime() + 11 * 1000); // en az 11 sn sonrası
             
             // Sadece gerçekten gelecekteki görevleri filtrele (tarih + saat bazlı)
             var upcoming = tasks.filter(function(t) {
@@ -393,6 +433,75 @@
             "seminer": { label: "Seminer", className: "lesson-seminer", btnClass: "btn-seminer", tag: "SEM" }
         };
 
+        // ====== DİL / LANGUAGE (TR <-> EN) ======
+        let APP_LANG = (function(){ try { return JSON.parse(localStorage.getItem('lang_v1')) || 'tr'; } catch(e){ return 'tr'; } })();
+        const I18N = {
+            // Navigasyon
+            "Akış": "Flow", "Ana Sayfa": "Home", "Ders": "Lessons", "Yıllık": "Yearly", "Puan": "Score",
+            // Günler
+            "Pazartesi": "Monday", "Sali": "Tuesday", "Carsamba": "Wednesday", "Persembe": "Thursday",
+            "Cuma": "Friday", "Cumartesi": "Saturday", "Pazar": "Sunday",
+            // Genel
+            "Günlük Akış": "Daily Flow", "Akış boş.": "No events.",
+            "namaz": "prayer", "ders": "lesson", "görev": "task", "resmi": "official", "özel": "special",
+            "Ayarlar": "Settings", "Kaydet": "Save", "İptal": "Cancel", "Vazgeç": "Cancel", "Sil": "Delete",
+            "Güncelle": "Update", "Kapat": "Close", "Ekle": "Add", "Tamam": "OK",
+            // Giriş ekranı
+            "Başlamak için bilgilerini gir": "Enter your details to start",
+            "Ad Soyad": "Full Name", "Namaz Vakitlerini Göster": "Show Prayer Times", "BAŞLAT": "START",
+            // Header / kullanıcı
+            "Unvan": "Title", "Üniversite": "University",
+            // Home butonları
+            "HATIRLATICI": "REMINDER", "NOT DEFTERİ": "NOTEBOOK", "AI ARAÇLARI": "AI TOOLS",
+            "Akademik Takvim": "Academic Calendar", "Linke git": "Open link", "Link ekle": "Add link",
+            "Fotoğrafları PDF'e dönüştür": "Convert photos to PDF",
+            "Önemli Linkler": "Important Links", "Ders Programı İndir": "Download Timetable",
+            "PNG olarak kaydet": "Save as PNG", "Yeni Ders Ekle": "Add New Lesson",
+            "Haftalık programa ders ekle": "Add a lesson to the weekly schedule",
+            // Yıllık
+            "Üni Web": "Uni Web", "ICS Yükle": "Import ICS", "Bugüne Dön": "Go to Today",
+            "Akademik": "Academic", "Resmi": "Official", "Kişisel": "Personal", "Bugün": "Today",
+            // Schedule
+            "Haftalık Program": "Weekly Schedule", "Ekran Görüntüsü": "Screenshot", "Saat": "Time",
+            // Promotion
+            "Puan Cetveli": "Score Sheet", "Faaliyet": "Activity", "Adet": "Qty", "Top.": "Tot.", "Puan": "Points", "Özel": "Special",
+            "Hedef Puan:": "Target Score:", "MEVCUT": "CURRENT",
+            // Görev modalı
+            "Yeni Hatırlatıcı": "New Reminder", "Görevi Düzenle": "Edit Task", "Başlık": "Title",
+            "Açıklama...": "Description...", "Başlangıç Tarihi": "Start Date", "Bitiş Tarihi": "End Date",
+            "(opsiyonel)": "(optional)", "Gündelik İş (Mavi)": "Daily Task (Blue)",
+            "Akademik (Kırmızı)": "Academic (Red)", "Resmi Toplantı (Yeşil)": "Official Meeting (Green)",
+            "Özel Gün (Pembe - Yıllık Tekrar)": "Special Day (Pink - Yearly)",
+            "Rutin Tekrar Seçeneği": "Recurring Option", "Tekrar Yok": "No Repeat",
+            "Haftalık": "Weekly", "İki Haftada Bir": "Biweekly", "Aylık": "Monthly",
+            "Kaç Kez?": "How many?", "12 ay boyunca her ay tekrarlanacak": "Repeats monthly for 12 months",
+            "Özel günler her yıl otomatik olarak tekrarlanır": "Special days repeat automatically every year",
+            "Yine de Ekle?": "Add anyway?",
+            // Notlar
+            "Not Defteri": "Notebook", "Notunuz...": "Your note...",
+            // Ders modalı
+            "Ders Düzenle": "Edit Lesson", "Ders Adı": "Lesson Name", "Başlangıç": "Start", "Bitiş": "End",
+            "Sınıf/Derslik": "Classroom", "Süre (Saat)": "Duration (Hours)", "Tür (Renk Seçimi)": "Type (Color)",
+            "Ders Adı *": "Lesson Name *", "Ders Tipi *": "Lesson Type *", "Zaman Dilimleri": "Time Slots",
+            // Ayarlar modalı
+            "Bildirim Sesi": "Notification Sound", "Varsayılan": "Default", "Alarm": "Alarm",
+            "Çan": "Chime", "Sessiz": "Silent",
+            "Yedek İndir (.json)": "Download Backup (.json)", "Yedek Yükle": "Load Backup",
+            "Dil": "Language", "Türkçe": "Turkish", "İngilizce": "English",
+            // Gün detay
+            "Detayı": "Details", "Bu Güne Hatırlatıcı Ekle": "Add Reminder for This Day",
+            "Döngüsel": "Recurring",
+            // Akademik takvim modal
+            "Akademik Takvim Linki": "Academic Calendar Link", "Takvimi Aç": "Open Calendar",
+            // AI
+            "AI Araçları": "AI Tools", "Yeni AI Aracı Ekle": "Add New AI Tool",
+            "Önemli Akademik Linkler": "Important Academic Links", "Yeni Link Ekle": "Add New Link",
+            "Genel Platformlar": "General Platforms", "Buton Adı": "Button Name",
+            // Lesson type labels
+            "Lisans": "Bachelor", "Y. Lisans": "Master", "Doktora": "PhD", "Seminer": "Seminar"
+        };
+        const t = (s) => (APP_LANG === 'en' && I18N[s]) ? I18N[s] : s;
+
         const P2PdfModal = ({ images, setImages, onClose, sendToNative }) => {
             const moveUp = (idx) => {
                 if (idx === 0) return;
@@ -530,7 +639,10 @@
             const [tempAiLinkUrl, setTempAiLinkUrl] = useState("");
             const [notifSound, setNotifSound] = useState(() => safeGet('notif_sound_v48', 'default'));
             const [p2pdfImages, setP2pdfImages] = useState([]);
-            
+            const [language, setLanguage] = useState(() => safeGet('lang_v1', 'tr'));
+            APP_LANG = language;
+            useEffect(() => { safeSave('lang_v1', language); }, [language]);
+
             const [view, setView] = useState("flow");
             
             // Geri tuşu için view geçmişi
@@ -587,7 +699,8 @@
             const [dismissedAlerts, setDismissedAlerts] = useState([]);
             
             const [editingTask, setEditingTask] = useState(null);
-            const [newTask, setNewTask] = useState({ title: "", date: "", time: "", desc: "", type: "task", category: "daily" });
+            const [newTask, setNewTask] = useState({ title: "", date: "", time: "", desc: "", type: "task", category: "daily", endDate: "" });
+            const [googleEvents, setGoogleEvents] = useState(() => safeGet('googleEvents_v1', []));
             const [newNote, setNewNote] = useState("");
             const [recurringType, setRecurringType] = useState("none");
             const [recurringWeeks, setRecurringWeeks] = useState(14);
@@ -644,6 +757,52 @@
             useEffect(() => { localStorage.setItem('target_score_v48', JSON.stringify(targetScore)); }, [targetScore]);
             useEffect(() => { localStorage.setItem('timeslots_v49', JSON.stringify(timeSlots)); }, [timeSlots]);
             useEffect(() => { localStorage.setItem('academic_calendar_url_v48', JSON.stringify(academicCalendarUrl)); }, [academicCalendarUrl]);
+            useEffect(() => { localStorage.setItem('googleEvents_v1', JSON.stringify(googleEvents)); }, [googleEvents]);
+
+            // Görev/ders/saat değişince bildirimleri anında yeniden planla (uygulama yeniden açılmasına gerek kalmadan)
+            useEffect(() => {
+                const t = setTimeout(() => {
+                    try { if (window.scheduleAllNotifications) window.scheduleAllNotifications(); } catch(e) {}
+                }, 900);
+                return () => clearTimeout(t);
+            }, [tasks, schedule, timeSlots, notifSound]);
+
+            useEffect(() => {
+                window.__onGooglePull = (events) => setGoogleEvents(events);
+                window.__onCalendarAddSuccess = (taskId, calendarEventId, calendarId) => {
+                    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, calendarEventId, calendarId } : t));
+                };
+                window.__onCalendarSyncSuccess = (results) => {
+                    setTasks(prev => prev.map(t => {
+                        const r = results.find(r => r.id === t.id);
+                        return r ? { ...t, calendarEventId: r.calendarEventId, calendarId: r.calendarId } : t;
+                    }));
+                };
+                return () => {
+                    window.__onGooglePull = null;
+                    window.__onCalendarAddSuccess = null;
+                    window.__onCalendarSyncSuccess = null;
+                };
+            }, []);
+
+            useEffect(() => {
+                try {
+                    var lastBackup = localStorage.getItem('lastAutoBackup_v1');
+                    var sinceLastMs = lastBackup ? (new Date() - new Date(lastBackup)) : Infinity;
+                    if (sinceLastMs > 30 * 24 * 60 * 60 * 1000) {
+                        var timer = setTimeout(function() {
+                            if (window.confirm('📦 30 günden fazladır yedek alınmadı.\nŞimdi otomatik yedek alınsın mı?')) {
+                                var data = JSON.stringify({ user, tasks, completedTasks, schedule, customScores, targetScore, notes, academicCalendarUrl }, null, 2);
+                                var sent = sendToNative({ type: 'EXPORT_DATA', data: data, filename: 'otomatik_yedek_' + new Date().toISOString().split('T')[0] + '.json' });
+                                if (sent) { localStorage.setItem('lastAutoBackup_v1', new Date().toISOString()); }
+                            } else {
+                                localStorage.setItem('lastAutoBackup_v1', new Date().toISOString());
+                            }
+                        }, 4000);
+                        return function() { clearTimeout(timer); };
+                    }
+                } catch(e) {}
+            }, []);
             useEffect(() => { safeSave('notif_sound_v48', notifSound); }, [notifSound]);
             
             // YENİ: Özelleştirilebilir linkler localStorage
@@ -704,7 +863,7 @@
                         if (l && l.name) {
                             const tStr = timeSlots[i] || "00:00";
                             const lessonDisplayTime = l.startTime || tStr;
-                            list.push({ id: `l-${i}`, title: l.name, time: lessonDisplayTime, type: "class", displayType: "class", lType: l.type, desc: LESSON_TYPES[l.type].label, classroom: l.classroom, sortTime: lessonDisplayTime });
+                            list.push({ id: `l-${i}`, title: l.name, time: lessonDisplayTime, type: "class", displayType: "class", lType: l.type, desc: t(LESSON_TYPES[l.type].label), classroom: l.classroom, sortTime: lessonDisplayTime });
                         }
                     });
                 }
@@ -746,7 +905,7 @@
                             if (l) {
                                 const lessonTime = l.startTime || timeSlots[i];
                                 const tMin = getMinutes(lessonTime) + (dayOffset * 1440);
-                                if (tMin >= windowStart && tMin <= windowEnd) events.push({ id: `l-${dayOffset}-${i}`, title: l.name, time: lessonTime, relativeMin: tMin, displayType: "class", lType: l.type, desc: LESSON_TYPES[l.type].label, classroom: l.classroom });
+                                if (tMin >= windowStart && tMin <= windowEnd) events.push({ id: `l-${dayOffset}-${i}`, title: l.name, time: lessonTime, relativeMin: tMin, displayType: "class", lType: l.type, desc: t(LESSON_TYPES[l.type].label), classroom: l.classroom });
                             }
                         });
                     }
@@ -814,7 +973,11 @@
                 }
 
                 if (editingTask) {
-                    setTasks(prev => prev.map(t => t.id === editingTask.id ? { ...newTask, id: t.id } : t));
+                    const updatedTask = { ...newTask, id: editingTask.id, calendarEventId: editingTask.calendarEventId, calendarId: editingTask.calendarId };
+                    setTasks(prev => prev.map(t => t.id === editingTask.id ? updatedTask : t));
+                    if (editingTask.calendarEventId) {
+                        sendToNative({ type: 'UPDATE_CALENDAR_EVENT', event: updatedTask });
+                    }
                     setEditingTask(null);
                 } else {
                     let newTasks = []; 
@@ -836,9 +999,18 @@
                             newTasks.push({...newTask, id: Date.now()+i, date: currentDate.toISOString().split('T')[0], category: newTask.category, title: newTask.title, time: newTask.time, desc: newTask.desc });
                             currentDate.setMonth(currentDate.getMonth() + 1);
                         }
-                    } else { 
-                        newTasks.push({...newTask, id: Date.now()}); 
-                    } 
+                    } else if (newTask.endDate && newTask.endDate > newTask.date) {
+                        let currentDate = new Date(newTask.date + 'T00:00:00');
+                        const endDate = new Date(newTask.endDate + 'T00:00:00');
+                        let i = 0;
+                        while (currentDate <= endDate && i < 365) {
+                            newTasks.push({...newTask, id: Date.now()+i, date: currentDate.toISOString().split('T')[0]});
+                            currentDate.setDate(currentDate.getDate() + 1);
+                            i++;
+                        }
+                    } else {
+                        newTasks.push({...newTask, id: Date.now()});
+                    }
                     setTasks(prev => [...prev, ...newTasks]);
                     
                     // Native saat uygulamasına alarm ekle (saat varsa sor)
@@ -858,7 +1030,7 @@
                     }
                 }
                 
-                setActiveModal(null); setConflictWarn(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");
+                setActiveModal(null); setConflictWarn(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily", endDate:""}); setRecurringType("none");
             };
 
             const openEditTask = (task) => {
@@ -868,15 +1040,19 @@
                 setConflictWarn(null);
             };
 
-            const deleteTask = (e, id) => { 
+            const deleteTask = (e, id) => {
                 e.stopPropagation();
-                if(confirm("Görevi silmek istediğinize emin misiniz?")) { 
-                    setTasks(prev => prev.filter(t => t.id !== id)); 
+                if(confirm("Görevi silmek istediğinize emin misiniz?")) {
+                    const task = tasks.find(t => t.id === id);
+                    if (task?.calendarEventId) {
+                        sendToNative({ type: 'DELETE_CALENDAR_EVENT', calendarEventId: task.calendarEventId });
+                    }
+                    setTasks(prev => prev.filter(t => t.id !== id));
                     setCompletedTasks(prev => prev.filter(tid => tid !== id));
                     if (dayDetailData) {
                          setDayDetailData(prev => ({...prev, events: prev.events.filter(ev => ev.id !== id)}));
                     }
-                } 
+                }
             };
 
             const handleAddNote = () => { if(!newNote) return; setNotes([{id: Date.now(), text: newNote, date: new Date().toLocaleDateString()}, ...notes]); setNewNote(""); };
@@ -906,7 +1082,7 @@
                 }
             };
             const handleFileUpload = (e) => { const file = e.target.files[0]; if (!file) return; const reader = new FileReader(); reader.onload = (e) => { const content = e.target.result; const lines = content.split(/\r\n|\n|\r/); let events = []; let currentEvent = null; lines.forEach(line => { if (line.startsWith('BEGIN:VEVENT')) currentEvent = {}; else if (line.startsWith('END:VEVENT')) { if (currentEvent && currentEvent.SUMMARY && currentEvent.DTSTART) { const rawDate = currentEvent.DTSTART.replace('VALUE=DATE:',''); const y = rawDate.substring(0,4); const m = rawDate.substring(4,6); const d = rawDate.substring(6,8); const h = rawDate.length > 8 ? rawDate.substring(9,11) : "08"; const min = rawDate.length > 8 ? rawDate.substring(11,13) : "00"; events.push({ id: Date.now() + Math.random(), title: currentEvent.SUMMARY, date: `${y}-${m}-${d}`, time: `${h}:${min}`, desc: "Takvimden", type: "task", category: "official", origin: "imported" }); } currentEvent = null; } else if (currentEvent) { const [key, val] = line.split(':'); if(key) currentEvent[key.split(';')[0]] = val; } }); setTasks([...tasks, ...events]); alert(`${events.length} etkinlik eklendi.`); }; reader.readAsText(file); };
-            const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); } };
+            const handleDayClick = (dateStr, events) => { if (events.length > 0) { setDayDetailData({date: dateStr, events}); setActiveModal('dayDetail'); } else { setNewTask({ title: "", date: dateStr, time: "09:00", desc: "", type: "task", category: "daily", endDate: "" }); setActiveModal('task'); } };
             
             const getAllEvents = () => { 
                 const academicEvents = calendarEvents.map(e => ({ ...e, origin: 'academic', title: e.event, category: 'academic' })); 
@@ -936,7 +1112,14 @@
                     });
                 }
                 
-                return [...academicEvents, ...userEvents, ...recurringSpecialEvents]; 
+                const googleCalEvents = googleEvents.map(e => ({
+                    ...e,
+                    event: e.title,
+                    origin: 'google',
+                    category: 'google',
+                    isGoogleEvent: true,
+                }));
+                return [...academicEvents, ...userEvents, ...recurringSpecialEvents, ...googleCalEvents];
             };
             
             const saveLesson = () => { 
@@ -1111,7 +1294,7 @@
                             if (ev.displayType === 'prayer') nodeColor = "bg-white w-0.5 h-full rounded-none top-0 translate-y-0";
                             else { 
                                 if (ev.displayType === 'daily' || ev.displayType === 'task') nodeColor = "bg-blue-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
-                                else if (ev.displayType === 'official') nodeColor = "bg-amber-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
+                                else if (ev.displayType === 'official') nodeColor = "bg-green-500 w-3 h-3 rounded-full border-2 border-slate-900";
                                 else if (ev.displayType === 'special') nodeColor = "bg-pink-500 w-3 h-3 rounded-full border-2 border-slate-900"; 
                                 else if (ev.displayType === 'class') nodeColor = "bg-emerald-500 w-3 h-3 rounded-full border-2 border-slate-900";
                             }
@@ -1193,20 +1376,26 @@
             };
 
             const totalCalculated = customScores.reduce((acc, curr) => acc + ( (parseInt(curr.value)||0) * (parseInt(curr.count)||0) ), 0);  //
-            const appClass = isScreenshotMode ? "screenshot-mode bg-white min-h-screen text-black" : "max-w-md mx-auto min-h-screen bg-[#0f172a] pb-24 relative shadow-2xl overflow-hidden text-slate-100";
+            const appClass = isScreenshotMode ? "screenshot-mode bg-white min-h-screen text-black" : "app-container";
 
             if (!user) {
                 return (
-                    <div className="min-h-screen flex items-center justify-center p-6 bg-[#0f172a]">
-                        <div className="w-full max-w-md glass p-8 rounded-2xl shadow-2xl">
-                            <h1 className="text-2xl font-bold text-white mb-2 text-center">Akademik Asistan</h1>
-                            <p className="text-center text-slate-400 mb-6 text-sm">V2.4 • Zaphyros</p>
-                            <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} className="space-y-4">
-                                <select name="title" className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
-                                <input name="name" required placeholder="Ad Soyad" className="w-full input-dark p-3 rounded-lg" />
-                                <select name="uni" className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select>
-                                <div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div>
-                                <button className="w-full bg-blue-600 text-white font-bold py-4 rounded-xl mt-2 hover:bg-blue-500 transition">BAŞLAT</button>
+                    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'24px',background:'var(--bg-deep)'}}>
+                        <div style={{width:'100%',maxWidth:'420px',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'24px',padding:'36px 28px',boxShadow:'0 25px 60px rgba(0,0,0,0.5)'}}>
+                            <div style={{textAlign:'center',marginBottom:'32px'}}>
+                                <div className="signature" style={{color:'var(--accent-light)',fontSize:'11px',letterSpacing:'4px',marginBottom:'12px'}}>ZAPHYROS</div>
+                                <h1 style={{fontSize:'24px',fontWeight:'700',color:'var(--text-primary)',marginBottom:'6px'}}>Akademik Asistan</h1>
+                                <p style={{color:'var(--text-muted)',fontSize:'13px'}}>V2.4 • Başlamak için bilgilerini gir</p>
+                            </div>
+                            <form onSubmit={(e) => { e.preventDefault(); const fd = new FormData(e.target); const u = UNIVERSITIES.find(x => x.name === fd.get('uni')); if (!u) return; setUser({ title: fd.get('title'), name: fd.get('name'), uni: u.name, city: u.city, url: u.url, enablePrayer: fd.get('enablePrayer') === 'on' }); }} style={{display:'flex',flexDirection:'column',gap:'12px'}}>
+                                <select name="title" className="input-dark" style={{padding:'14px 16px',width:'100%'}}>{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select>
+                                <input name="name" required placeholder="Ad Soyad" className="input-dark" style={{padding:'14px 16px',width:'100%'}} />
+                                <select name="uni" className="input-dark" style={{padding:'14px 16px',width:'100%'}}>{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select>
+                                <div style={{display:'flex',alignItems:'center',gap:'12px',padding:'8px 4px'}}>
+                                    <input type="checkbox" name="enablePrayer" defaultChecked style={{width:'18px',height:'18px',accentColor:'var(--accent)'}} />
+                                    <span style={{fontSize:'14px',color:'var(--text-secondary)'}}>Namaz Vakitlerini Göster</span>
+                                </div>
+                                <button style={{background:'linear-gradient(135deg,var(--accent),var(--purple))',color:'white',fontWeight:'700',padding:'16px',borderRadius:'14px',border:'none',fontSize:'15px',cursor:'pointer',marginTop:'8px',boxShadow:'0 4px 20px var(--accent-glow)'}}>BAŞLAT</button>
                             </form>
                         </div>
                     </div>
@@ -1214,181 +1403,225 @@
             }
 
             return (
-                <div className={appClass} onClick={() => isScreenshotMode && setIsScreenshotMode(false)}>
+                <div className={appClass} style={isScreenshotMode ? {} : {maxWidth:'448px',margin:'0 auto',minHeight:'100vh',background:'var(--bg-deep)',position:'relative'}} onClick={() => isScreenshotMode && setIsScreenshotMode(false)}>
                     <audio ref={audioRef} src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
-                    
+
                     {alertState && !isScreenshotMode && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-red-900/95 backdrop-blur-md animate-flash">
-                            <div className="bg-white text-red-700 p-6 rounded-3xl shadow-2xl text-center max-w-sm mx-4 transform scale-110">
-                                <i className="fas fa-exclamation-triangle text-6xl mb-4 animate-bounce"></i>
-                                <h1 className="text-3xl font-bold mb-1">DİKKAT!</h1>
-                                <p className="text-2xl font-bold text-black mb-2">{alertState.time}</p>
-                                <p className="text-lg font-semibold">{alertState.title}</p>
-                                <button onClick={dismissAlert} className="mt-6 w-full bg-red-600 text-white py-3 rounded-xl font-bold hover:bg-red-700 transition shadow-lg">TAMAM, ANLAŞILDI</button>
+                        <div style={{position:'fixed',inset:0,zIndex:100,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(127,29,29,0.97)',backdropFilter:'blur(12px)'}}>
+                            <div style={{background:'white',color:'#b91c1c',padding:'28px',borderRadius:'24px',boxShadow:'0 25px 60px rgba(0,0,0,0.5)',textAlign:'center',maxWidth:'320px',margin:'16px'}}>
+                                <i className="fas fa-exclamation-triangle" style={{fontSize:'56px',marginBottom:'16px',display:'block'}}></i>
+                                <h1 style={{fontSize:'28px',fontWeight:'900',marginBottom:'4px'}}>DİKKAT!</h1>
+                                <p style={{fontSize:'22px',fontWeight:'700',color:'black',marginBottom:'8px'}}>{alertState.time}</p>
+                                <p style={{fontSize:'16px',fontWeight:'600'}}>{alertState.title}</p>
+                                <button onClick={dismissAlert} style={{marginTop:'20px',width:'100%',background:'#dc2626',color:'white',padding:'14px',borderRadius:'14px',fontWeight:'700',border:'none',fontSize:'15px',cursor:'pointer'}}>TAMAM, ANLAŞILDI</button>
                             </div>
                         </div>
                     )}
-                    
+
                     {/* Header */}
-                    <div className="pt-10 pb-6 px-6 bg-gradient-to-br from-blue-900 via-slate-900 to-slate-900 rounded-b-[40px] shadow-lg border-b border-blue-900/30 no-print z-20 relative no-screenshot">
-                        <div className="absolute top-3 right-5 text-cyan-400/80 text-[11px] tracking-wider signature z-50 leading-none pointer-events-none">ZAPHYROS</div>
-                        <div className="flex justify-between items-start">
-                            <div><h2 className="text-xl font-bold text-white">{user.name}</h2><div className="text-xs text-blue-300 mt-1">{user.title}</div></div>
-                            <button onClick={() => setActiveModal('settings')} className="w-8 h-8 rounded-full bg-slate-800 text-slate-400 flex items-center justify-center hover:text-blue-400"><i className="fas fa-cog text-xs"></i></button>
-                        </div>
-                        <div className="mt-6 relative">
-                            <div className="flex justify-between text-[10px] text-blue-200 font-mono mb-1"><span>-6s</span><span className="animate-pulse text-white font-bold">{currentTimeStr}</span><span>+18s</span></div>
-                            {renderTimelineBar()}
-                            {selectedNode && (<div className="mt-2 bg-slate-800 p-2 rounded border border-slate-600 text-xs flex justify-between items-center animate-enter">
-                                <div>
-                                    <span className="font-bold text-blue-300">{selectedNode.time}</span> - {selectedNode.title}
-                                    {selectedNode.classroom && <span className="text-slate-400 ml-2">• {selectedNode.classroom}</span>}
+                    <div style={{background:'linear-gradient(160deg, #0d1a3a 0%, #060b18 70%)',paddingTop:'44px',paddingBottom:'16px',paddingLeft:'20px',paddingRight:'20px',borderBottom:'1px solid rgba(99,102,241,0.15)',position:'relative',overflow:'hidden'}} className="no-screenshot">
+                        <div style={{position:'absolute',top:'-40px',right:'-20px',width:'200px',height:'200px',background:'radial-gradient(circle, rgba(99,102,241,0.15) 0%, transparent 70%)',pointerEvents:'none'}}></div>
+                        <div className="signature" style={{position:'absolute',top:'12px',right:'16px',color:'rgba(99,102,241,0.5)',fontSize:'9px',letterSpacing:'3px'}}>ZAPHYROS</div>
+                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+                            <div>
+                                <div style={{fontSize:'20px',fontWeight:'700',color:'#f1f5f9'}}>{user.name}</div>
+                                <div style={{fontSize:'11px',color:'#818cf8',marginTop:'2px'}}>{user.title} • {user.uni?.split(' ')[0]}</div>
+                            </div>
+                            <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
+                                <div style={{width:'38px',height:'38px',borderRadius:'50%',background:'linear-gradient(135deg,#6366f1,#8b5cf6)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'15px',fontWeight:'700',color:'white',flexShrink:0}}>
+                                    {user.name?.charAt(0)?.toUpperCase()}
                                 </div>
-                                <button onClick={() => setSelectedNode(null)}><i className="fas fa-times"></i></button>
-                            </div>)}
+                                <button onClick={() => setActiveModal('settings')} style={{width:'38px',height:'38px',borderRadius:'50%',background:'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.25)',color:'#818cf8',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer'}}>
+                                    <i className="fas fa-cog" style={{fontSize:'14px'}}></i>
+                                </button>
+                            </div>
                         </div>
+                        <div style={{marginBottom:'6px',display:'flex',justifyContent:'space-between',fontSize:'10px',color:'#475569',fontFamily:'monospace'}}>
+                            <span>-6s</span>
+                            <span style={{color:'#f1f5f9',fontWeight:'700'}} className="animate-pulse">{currentTimeStr}</span>
+                            <span>+18s</span>
+                        </div>
+                        {renderTimelineBar()}
+                        {selectedNode && (
+                            <div style={{marginTop:'8px',background:'rgba(99,102,241,0.1)',border:'1px solid rgba(99,102,241,0.2)',borderRadius:'10px',padding:'8px 12px',display:'flex',justifyContent:'space-between',alignItems:'center'}} className="animate-enter">
+                                <div>
+                                    <span style={{color:'#818cf8',fontWeight:'700',fontSize:'13px'}}>{selectedNode.time}</span>
+                                    <span style={{color:'#94a3b8',fontSize:'13px'}}> — {selectedNode.title}</span>
+                                    {selectedNode.classroom && <span style={{color:'#475569',fontSize:'12px'}}> • {selectedNode.classroom}</span>}
+                                </div>
+                                <button onClick={() => setSelectedNode(null)} style={{color:'#475569',background:'none',border:'none',cursor:'pointer'}}><i className="fas fa-times"></i></button>
+                            </div>
+                        )}
                     </div>
 
-                    <div className="p-4 space-y-4 no-screenshot">
-                        {/* AKIŞ - TİK BUTONU EKLENMİŞ */}
+                    <div style={{padding:'16px',paddingBottom:'100px'}} className="no-screenshot">
+                        {/* AKIŞ */}
                         {view === 'flow' && (
-                            <div className="animate-enter space-y-3">
-                                <h3 className="text-sm font-bold text-slate-400 uppercase border-b border-slate-700 pb-2 mb-4 ml-1">Günlük Akış</h3>
-                                {getTimelineList().length === 0 ? <div className="text-center py-12 opacity-30 text-sm border-2 border-dashed border-slate-700 rounded-xl">Akış boş.</div> : 
-                                    getTimelineList().map((item, i) => { 
-                                        let borderClass = 'border-slate-600'; 
-                                        if (item.displayType === 'prayer') borderClass = 'border-white'; 
-                                        else if (item.displayType === 'daily' || item.displayType === 'task') borderClass = 'border-blue-500'; 
-                                        else if (item.displayType === 'official') borderClass = 'border-amber-500'; 
-                                        else if (item.displayType === 'special') borderClass = 'border-pink-500';
-                                        else if (item.displayType === 'class') borderClass = 'border-emerald-500'; 
-                                        
+                            <div className="animate-enter">
+                                <div style={{fontSize:'11px',fontWeight:'700',color:'#475569',textTransform:'uppercase',letterSpacing:'1px',borderBottom:'1px solid rgba(99,102,241,0.1)',paddingBottom:'10px',marginBottom:'16px'}}>{t('Günlük Akış')}</div>
+                                {getTimelineList().length === 0 ? (
+                                    <div style={{textAlign:'center',padding:'48px 24px',opacity:0.3,fontSize:'14px',border:'2px dashed rgba(99,102,241,0.15)',borderRadius:'16px',color:'#475569'}}>Akış boş.</div>
+                                ) :
+                                    getTimelineList().map((item, i) => {
+                                        let borderColor = '#475569';
+                                        if (item.displayType === 'prayer') borderColor = '#f1f5f9';
+                                        else if (item.displayType === 'daily' || item.displayType === 'task') borderColor = '#6366f1';
+                                        else if (item.displayType === 'official') borderColor = '#22c55e';
+                                        else if (item.displayType === 'special') borderColor = '#ec4899';
+                                        else if (item.displayType === 'class') borderColor = '#10b981';
+
+                                        let categoryLabel = item.displayType;
+                                        if (item.displayType === 'prayer') categoryLabel = 'namaz';
+                                        else if (item.displayType === 'class') categoryLabel = 'ders';
+                                        else if (item.displayType === 'daily' || item.displayType === 'task') categoryLabel = 'görev';
+                                        else if (item.displayType === 'official') categoryLabel = 'resmi';
+                                        else if (item.displayType === 'special') categoryLabel = 'özel';
+
                                         const nowTotalMin = new Date().getHours() * 60 + new Date().getMinutes();
                                         const isPast = item.relativeMin < nowTotalMin;
                                         const isCompleted = completedTasks.includes(item.id);
-                                        const opacityClass = (isPast || isCompleted) ? 'opacity-30 grayscale' : 'opacity-100';
 
                                         return (
-                                            <div key={i} className={`glass rounded-lg flex overflow-hidden border-l-4 ${borderClass} ${opacityClass} transition-all duration-300`}>
-                                                <div className="flex-1 p-3 flex items-center gap-3 cursor-pointer" onClick={() => { if(item.displayType!=='prayer'&&item.displayType!=='class') openEditTask(item) }}>
-                                                    <div className="text-center min-w-[50px] font-mono font-bold text-lg text-slate-300">{item.time}</div>
-                                                    <div className="flex-1">
-                                                        <div className="font-bold text-sm text-white">{item.title}</div>
-                                                        <div className="text-xs text-slate-500">
-                                                            {item.desc}
-                                                            {item.classroom && <span className="ml-2">• {item.classroom}</span>}
-                                                        </div>
+                                            <div key={i} style={{background:'var(--bg-card)',border:'1px solid rgba(99,102,241,0.1)',borderLeft:`3px solid ${borderColor}`,borderRadius:'16px',display:'flex',overflow:'hidden',opacity:(isPast||isCompleted)?0.35:1,transition:'all 0.3s',marginBottom:'8px'}}>
+                                                <div style={{flex:1,padding:'12px 14px',display:'flex',alignItems:'center',gap:'12px',cursor:'pointer'}} onClick={() => { if(item.displayType!=='prayer'&&item.displayType!=='class') openEditTask(item) }}>
+                                                    <div style={{textAlign:'center',minWidth:'52px'}}>
+                                                        <div style={{fontFamily:'monospace',fontWeight:'700',fontSize:'16px',color:'#f1f5f9'}}>{item.time}</div>
+                                                        <div style={{fontSize:'8px',marginTop:'2px',padding:'2px 6px',borderRadius:'4px',background:'rgba(99,102,241,0.2)',color:'#818cf8'}}>{t(categoryLabel)}</div>
+                                                    </div>
+                                                    <div style={{flex:1}}>
+                                                        <div style={{fontWeight:'600',fontSize:'14px',color:'#f1f5f9'}}>{item.title}</div>
+                                                        {item.desc && <div style={{fontSize:'11px',color:'#475569',marginTop:'2px'}}>{item.desc}</div>}
+                                                        {item.classroom && <div style={{fontSize:'11px',color:'#475569',marginTop:'2px'}}>📍 {item.classroom}</div>}
                                                     </div>
                                                 </div>
-                                                
                                                 {item.displayType !== 'prayer' && item.displayType !== 'class' && (
-                                                    <div className="flex">
-                                                        <button 
-                                                            onClick={(e) => {e.stopPropagation(); toggleTaskComplete(item.id);}} 
-                                                            className={`w-12 flex items-center justify-center border-l border-white/5 active:scale-95 transition-all z-10 ${isCompleted ? 'bg-emerald-900/50 text-emerald-400' : 'bg-slate-800/50 text-slate-500 hover:text-emerald-400'}`}
-                                                        >
-                                                            <i className={`fas ${isCompleted ? 'fa-check-circle' : 'fa-circle'} text-xl pointer-events-none`}></i>
+                                                    <div style={{display:'flex'}}>
+                                                        <button onClick={(e) => {e.stopPropagation(); toggleTaskComplete(item.id);}} style={{width:'48px',display:'flex',alignItems:'center',justifyContent:'center',background:isCompleted?'rgba(16,185,129,0.15)':'rgba(99,102,241,0.05)',color:isCompleted?'#10b981':'#475569',border:'none',borderLeft:'1px solid rgba(99,102,241,0.08)',cursor:'pointer'}}>
+                                                            <i className={`fas ${isCompleted ? 'fa-check-circle' : 'fa-circle'}`} style={{fontSize:'20px',pointerEvents:'none'}}></i>
                                                         </button>
-                                                        <button 
-                                                            onClick={(e) => deleteTask(e, item.id)} 
-                                                            className="w-12 bg-red-900/20 hover:bg-red-900/50 flex items-center justify-center text-red-400 border-l border-white/5 active:bg-red-800 transition-colors z-10"
-                                                        >
-                                                            <i className="fas fa-trash-alt pointer-events-none"></i>
+                                                        <button onClick={(e) => deleteTask(e, item.id)} style={{width:'48px',display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(244,63,94,0.05)',color:'#f43f5e',border:'none',borderLeft:'1px solid rgba(244,63,94,0.1)',cursor:'pointer'}}>
+                                                            <i className="fas fa-trash-alt" style={{fontSize:'15px',pointerEvents:'none'}}></i>
                                                         </button>
                                                     </div>
                                                 )}
                                             </div>
-                                        ) 
+                                        );
                                     })
                                 }
                             </div>
                         )}
                         
-                        {/* HOME - ÖNEMLİ LİNKLER BUTONU EKLENMİŞ, HAFTALIK DERS PROGRAMI KALDIRILMIŞ */}
+                        {/* HOME */}
                         {view === 'home' && (
-                            <div className="animate-enter space-y-4">
+                            <div className="animate-enter" style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+                                {/* Hızlı butonlar */}
+                                <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:'10px',marginBottom:'4px'}}>
+                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} style={{background:'linear-gradient(135deg,#4f46e5,#6366f1)',borderRadius:'18px',padding:'16px 8px',border:'1px solid rgba(99,102,241,0.3)',display:'flex',flexDirection:'column',alignItems:'center',gap:'8px',boxShadow:'0 4px 20px rgba(99,102,241,0.25)',cursor:'pointer'}}>
+                                        <i className="fas fa-bell" style={{fontSize:'22px',color:'white'}}></i>
+                                        <span style={{fontSize:'9px',fontWeight:'700',color:'white',letterSpacing:'0.5px'}}>{t('HATIRLATICI')}</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('notes')} style={{background:'rgba(245,158,11,0.1)',borderRadius:'18px',padding:'16px 8px',border:'1px solid rgba(245,158,11,0.2)',display:'flex',flexDirection:'column',alignItems:'center',gap:'8px',cursor:'pointer'}}>
+                                        <i className="fas fa-sticky-note" style={{fontSize:'22px',color:'#fbbf24'}}></i>
+                                        <span style={{fontSize:'9px',fontWeight:'700',color:'#fbbf24',letterSpacing:'0.5px'}}>{t('NOT DEFTERİ')}</span>
+                                    </button>
+                                    <button onClick={() => setActiveModal('aiLinks')} style={{background:'linear-gradient(135deg,rgba(107,76,8,0.4),rgba(184,134,11,0.3))',borderRadius:'18px',padding:'16px 8px',border:'1px solid rgba(212,160,23,0.3)',display:'flex',flexDirection:'column',alignItems:'center',gap:'8px',cursor:'pointer'}}>
+                                        <i className="fas fa-robot" style={{fontSize:'22px',color:'#fbbf24'}}></i>
+                                        <span style={{fontSize:'9px',fontWeight:'700',color:'#fbbf24',letterSpacing:'0.5px'}}>{t('AI ARAÇLARI')}</span>
+                                    </button>
+                                </div>
+
+                                {/* Akademik Takvim */}
                                 {user.url && (
-                                    <>
-                                    <div className="grid grid-cols-3 gap-3">
-                                    <button onClick={() => { const today = new Date().toISOString().split('T')[0]; setNewTask({title:"", date:today, time:"", desc:"", type:"task", category:"daily"}); setActiveModal('task'); setConflictWarn(null); }} className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-bell text-2xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">HATIRLATICI</span>
-                                    </button>
-                                    <button onClick={() => setActiveModal('notes')} className="bg-slate-700 text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 border border-slate-600 shadow-lg active:scale-95 transition">
-                                        <i className="fas fa-sticky-note text-2xl text-yellow-400"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">NOT DEFTERİ</span>
-                                    </button>
-                                    <button onClick={() => setActiveModal('aiLinks')} style={{background:'linear-gradient(135deg,#6b4c08 0%,#b8860b 40%,#7c5c0a 70%,#d4a017 100%)'}} className="text-white p-4 rounded-xl flex flex-col items-center justify-center gap-2 shadow-lg active:scale-95 transition-all">
-                                        <i className="fas fa-robot text-2xl"></i>
-                                        <span className="font-bold text-[10px] tracking-wide">AI ARAÇLARI</span>
-                                    </button>
-                                </div>
-                                    <div className="relative mb-2">
-                                    <button onClick={() => { if(academicCalendarUrl) { window.open(fixUrl(academicCalendarUrl), '_blank'); } else { setActiveModal('academicCalendar'); } }} className="w-full bg-slate-800 border border-slate-600 text-blue-300 p-4 rounded-xl flex items-center justify-between hover:bg-slate-700 transition shadow-lg">
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-full bg-red-900/50 flex items-center justify-center text-white text-xl"><i className="fas fa-calendar-alt"></i></div>
-                                            <div className="text-left">
-                                                <div className="text-xs text-slate-400">{academicCalendarUrl ? 'Linke git' : 'Link ekle'}</div>
-                                                <div className="text-base font-bold text-white">📅 Akademik Takvim</div>
+                                    <div style={{position:'relative'}}>
+                                        <button onClick={() => { if(academicCalendarUrl) { window.open(fixUrl(academicCalendarUrl), '_blank'); } else { setActiveModal('academicCalendar'); } }} style={{width:'100%',background:'var(--bg-card)',borderRadius:'16px',border:'1px solid var(--border)',padding:'14px 16px',display:'flex',alignItems:'center',gap:'14px',cursor:'pointer'}}>
+                                            <div style={{width:'42px',height:'42px',borderRadius:'12px',background:'rgba(239,68,68,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                                                <i className="fas fa-calendar-alt" style={{fontSize:'18px',color:'#f87171'}}></i>
                                             </div>
-                                        </div>
-                                        {!academicCalendarUrl && <i className="fas fa-plus opacity-50"></i>}
-                                    </button>
-                                    {academicCalendarUrl && (
-                                        <button 
-                                            onClick={(e) => { e.stopPropagation(); setActiveModal('academicCalendar'); }}
-                                            className="absolute top-1/2 -translate-y-1/2 right-3 w-7 h-7 bg-blue-600 hover:bg-blue-500 rounded-full flex items-center justify-center text-white shadow-lg z-10"
-                                            title="Linki Düzenle"
-                                        >
-                                            <i className="fas fa-edit text-xs"></i>
+                                            <div style={{flex:1,textAlign:'left'}}>
+                                                <div style={{fontSize:'14px',fontWeight:'600',color:'#f1f5f9'}}>{t('Akademik Takvim')}</div>
+                                                <div style={{fontSize:'11px',color:'#475569',marginTop:'2px'}}>{academicCalendarUrl ? t('Linke git') : t('Link ekle')}</div>
+                                            </div>
+                                            <i className="fas fa-chevron-right" style={{color:'#475569',fontSize:'12px'}}></i>
                                         </button>
-                                    )}
-                                </div>
-                                    </>
+                                        {academicCalendarUrl && (
+                                            <button onClick={(e) => { e.stopPropagation(); setActiveModal('academicCalendar'); }} style={{position:'absolute',top:'50%',transform:'translateY(-50%)',right:'44px',width:'28px',height:'28px',background:'rgba(99,102,241,0.2)',border:'1px solid rgba(99,102,241,0.3)',borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',color:'#818cf8',cursor:'pointer',zIndex:10}}>
+                                                <i className="fas fa-edit" style={{fontSize:'11px'}}></i>
+                                            </button>
+                                        )}
+                                    </div>
                                 )}
-                                
-                                <button onClick={() => setActiveModal('p2pdf')} className="w-full bg-gradient-to-r from-purple-600 to-purple-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-purple-700 hover:to-purple-800 transition shadow-lg">
-                                    <i className="fas fa-file-pdf text-xl"></i>
-                                    <span className="font-bold text-sm">P2PDF</span>
+
+                                {/* P2PDF */}
+                                <button onClick={() => setActiveModal('p2pdf')} style={{width:'100%',background:'var(--bg-card)',borderRadius:'16px',border:'1px solid var(--border)',padding:'14px 16px',display:'flex',alignItems:'center',gap:'14px',cursor:'pointer'}}>
+                                    <div style={{width:'42px',height:'42px',borderRadius:'12px',background:'rgba(139,92,246,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                                        <i className="fas fa-file-pdf" style={{fontSize:'18px',color:'#a78bfa'}}></i>
+                                    </div>
+                                    <div style={{flex:1,textAlign:'left'}}>
+                                        <div style={{fontSize:'14px',fontWeight:'600',color:'#f1f5f9'}}>P2PDF</div>
+                                        <div style={{fontSize:'11px',color:'#475569',marginTop:'2px'}}>{t("Fotoğrafları PDF'e dönüştür")}</div>
+                                    </div>
+                                    <i className="fas fa-chevron-right" style={{color:'#475569',fontSize:'12px'}}></i>
                                 </button>
-                                <button onClick={() => setActiveModal('importantLinks')} className="w-full bg-gradient-to-r from-orange-600 to-orange-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-orange-700 hover:to-orange-800 transition shadow-lg">
-                                    <i className="fas fa-link text-xl"></i>
-                                    <span className="font-bold text-sm">ÖNEMLİ LİNKLER</span>
+
+                                {/* Önemli Linkler */}
+                                <button onClick={() => setActiveModal('importantLinks')} style={{width:'100%',background:'var(--bg-card)',borderRadius:'16px',border:'1px solid var(--border)',padding:'14px 16px',display:'flex',alignItems:'center',gap:'14px',cursor:'pointer'}}>
+                                    <div style={{width:'42px',height:'42px',borderRadius:'12px',background:'rgba(245,158,11,0.15)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                                        <i className="fas fa-link" style={{fontSize:'18px',color:'#fbbf24'}}></i>
+                                    </div>
+                                    <div style={{flex:1,textAlign:'left'}}>
+                                        <div style={{fontSize:'14px',fontWeight:'600',color:'#f1f5f9'}}>{t('Önemli Linkler')}</div>
+                                        <div style={{fontSize:'11px',color:'#475569',marginTop:'2px'}}>Scholar, DergiPark, YÖK...</div>
+                                    </div>
+                                    <i className="fas fa-chevron-right" style={{color:'#475569',fontSize:'12px'}}></i>
                                 </button>
-                                <button onClick={exportScheduleToPDF} className="w-full p-4 rounded-xl flex items-center justify-center gap-2 transition active:scale-95" style={{background:'linear-gradient(135deg,#9ca3af 0%,#f3f4f6 30%,#d1d5db 60%,#9ca3af 100%)',border:'1px solid #6b7280'}}>
-                                    <i className="fas fa-download" style={{color:'#111'}}></i>
-                                    <span style={{color:'#111',fontWeight:'bold',fontSize:'13px'}}>DERS PROGRAMI INDIR</span>
+
+                                {/* Ders Programı İndir */}
+                                <button onClick={exportScheduleToPDF} style={{width:'100%',background:'var(--bg-card)',borderRadius:'16px',border:'1px solid rgba(148,163,184,0.15)',padding:'14px 16px',display:'flex',alignItems:'center',gap:'14px',cursor:'pointer'}}>
+                                    <div style={{width:'42px',height:'42px',borderRadius:'12px',background:'rgba(148,163,184,0.1)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                                        <i className="fas fa-download" style={{fontSize:'18px',color:'#94a3b8'}}></i>
+                                    </div>
+                                    <div style={{flex:1,textAlign:'left'}}>
+                                        <div style={{fontSize:'14px',fontWeight:'600',color:'#f1f5f9'}}>{t('Ders Programı İndir')}</div>
+                                        <div style={{fontSize:'11px',color:'#475569',marginTop:'2px'}}>{t('PNG olarak kaydet')}</div>
+                                    </div>
+                                    <i className="fas fa-chevron-right" style={{color:'#475569',fontSize:'12px'}}></i>
                                 </button>
-                                <button onClick={() => { setLessonSlots([{ id: Date.now(), day: "Pazartesi", startTime: "09:00", endTime: "10:00", classroom: "" }]); setLessonName(""); setLessonType("lisans"); setActiveModal('addLesson'); }} className="w-full bg-gradient-to-r from-emerald-600 to-emerald-700 p-4 rounded-xl flex items-center justify-center gap-3 hover:from-emerald-700 hover:to-emerald-800 transition shadow-lg">
-                                    <i className="fas fa-plus-circle text-xl"></i>
-                                    <span className="font-bold text-sm">YENİ DERS EKLE</span>
+
+                                {/* Yeni Ders Ekle */}
+                                <button onClick={() => { setLessonSlots([{ id: Date.now(), day: "Pazartesi", startTime: "09:00", endTime: "10:00", classroom: "" }]); setLessonName(""); setLessonType("lisans"); setActiveModal('addLesson'); }} style={{width:'100%',background:'linear-gradient(135deg,rgba(16,185,129,0.15),rgba(5,150,105,0.1))',borderRadius:'16px',border:'1px solid rgba(16,185,129,0.2)',padding:'14px 16px',display:'flex',alignItems:'center',gap:'14px',cursor:'pointer'}}>
+                                    <div style={{width:'42px',height:'42px',borderRadius:'12px',background:'rgba(16,185,129,0.2)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+                                        <i className="fas fa-plus-circle" style={{fontSize:'18px',color:'#34d399'}}></i>
+                                    </div>
+                                    <div style={{flex:1,textAlign:'left'}}>
+                                        <div style={{fontSize:'14px',fontWeight:'600',color:'#f1f5f9'}}>{t('Yeni Ders Ekle')}</div>
+                                        <div style={{fontSize:'11px',color:'#475569',marginTop:'2px'}}>{t('Haftalık programa ders ekle')}</div>
+                                    </div>
+                                    <i className="fas fa-chevron-right" style={{color:'#34d399',fontSize:'12px'}}></i>
                                 </button>
                             </div>
                         )}{/* ANNUAL VIEW */}
                         {view === 'annual' && (
-                        <div className="animate-enter pb-16">
-                            <div className="flex justify-between items-center mb-3">
-                                <div className="flex gap-2">
-                                    <button onClick={() => window.open(user.url, '_blank')} className="text-[10px] bg-red-900 px-3 py-1.5 rounded border border-red-700">Üni Web</button>
-                                    <button onClick={() => fileInputRef.current.click()} className="text-[10px] bg-slate-800 px-3 py-1.5 rounded border border-slate-700">ICS Yükle</button>
-                                    <button onClick={() => { setAnnualMonth(new Date().getMonth()); setAnnualYear(new Date().getFullYear()); }} className="text-[11px] bg-cyan-700 hover:bg-cyan-600 text-white px-4 py-1.5 rounded border border-cyan-500 font-bold flex items-center gap-1"><i className="fas fa-calendar-day"></i> Bugüne Dön</button>
-                                    <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" />
-                                </div>
+                        <div className="animate-enter" style={{paddingBottom:'20px'}}>
+                            <div style={{display:'flex',gap:'8px',marginBottom:'12px',flexWrap:'wrap'}}>
+                                <button onClick={() => window.open(user.url, '_blank')} style={{fontSize:'10px',background:'rgba(239,68,68,0.15)',border:'1px solid rgba(239,68,68,0.3)',color:'#f87171',padding:'6px 12px',borderRadius:'8px',cursor:'pointer'}}>{t('Üni Web')}</button>
+                                <button onClick={() => fileInputRef.current.click()} style={{fontSize:'10px',background:'var(--bg-card)',border:'1px solid var(--border)',color:'#94a3b8',padding:'6px 12px',borderRadius:'8px',cursor:'pointer'}}>{t('ICS Yükle')}</button>
+                                <button onClick={() => { setAnnualMonth(new Date().getMonth()); setAnnualYear(new Date().getFullYear()); }} style={{fontSize:'10px',background:'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.3)',color:'#818cf8',padding:'6px 12px',borderRadius:'8px',cursor:'pointer',fontWeight:'700',display:'flex',alignItems:'center',gap:'4px'}}><i className="fas fa-calendar-day"></i> {t('Bugüne Dön')}</button>
+                                <input type="file" ref={fileInputRef} onChange={handleFileUpload} className="hidden" accept=".ics" />
                             </div>
-                            <div className="glass rounded-lg border border-slate-700 overflow-hidden">
-                                <div className="bg-slate-800 p-3 flex items-center justify-between">
-                                    <button onClick={() => { if(annualMonth===0){setAnnualMonth(11);setAnnualYear(y=>y-1);}else setAnnualMonth(m=>m-1); }} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-600 text-slate-200 text-xl font-bold">&lt;</button>
-                                    <span className="font-bold text-blue-200 text-sm uppercase">
+                            <div style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'20px',overflow:'hidden'}}>
+                                <div style={{background:'var(--bg-elevated)',padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',borderBottom:'1px solid var(--border)'}}>
+                                    <button onClick={() => { if(annualMonth===0){setAnnualMonth(11);setAnnualYear(y=>y-1);}else setAnnualMonth(m=>m-1); }} style={{width:'36px',height:'36px',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',background:'rgba(99,102,241,0.1)',border:'1px solid var(--border)',color:'#f1f5f9',fontSize:'16px',fontWeight:'700',cursor:'pointer'}}>&lt;</button>
+                                    <span style={{fontWeight:'700',color:'#818cf8',fontSize:'14px',textTransform:'uppercase',letterSpacing:'1px'}}>
                                         {new Date(annualYear, annualMonth, 1).toLocaleString('tr-TR', {month:'long', year:'numeric'})}
                                     </span>
-                                    <button onClick={() => { if(annualMonth===11){setAnnualMonth(0);setAnnualYear(y=>y+1);}else setAnnualMonth(m=>m+1); }} className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-600 text-slate-200 text-xl font-bold">&gt;</button>
+                                    <button onClick={() => { if(annualMonth===11){setAnnualMonth(0);setAnnualYear(y=>y+1);}else setAnnualMonth(m=>m+1); }} style={{width:'36px',height:'36px',display:'flex',alignItems:'center',justifyContent:'center',borderRadius:'50%',background:'rgba(99,102,241,0.1)',border:'1px solid var(--border)',color:'#f1f5f9',fontSize:'16px',fontWeight:'700',cursor:'pointer'}}>&gt;</button>
                                 </div>
-                                <div className="grid grid-cols-7 text-[10px] text-slate-400 text-center py-2 bg-slate-900/30 font-bold border-b border-slate-700">
-                                    {['Pt','Sa','Ca','Pe','Cu','Ct','Pa'].map(d=><span key={d}>{d}</span>)}
+                                <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',textAlign:'center',padding:'10px 4px 6px',borderBottom:'1px solid var(--border)'}}>
+                                    {['Pt','Sa','Ca','Pe','Cu','Ct','Pa'].map(d=><span key={d} style={{fontSize:'10px',color:'#475569',fontWeight:'700'}}>{d}</span>)}
                                 </div>
-                                <div className="grid grid-cols-7 p-1 gap-0.5">
+                                <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',padding:'4px',gap:'2px'}}>
                                     {Array(new Date(annualYear,annualMonth,1).getDay()===0?6:new Date(annualYear,annualMonth,1).getDay()-1).fill(null).map((_,k)=>(
-                                        <div key={"e"+k} className="h-11"></div>
+                                        <div key={"e"+k} style={{height:'44px'}}></div>
                                     ))}
                                     {Array(new Date(annualYear,annualMonth+1,0).getDate()).fill(null).map((_,k)=>{
                                         const d=k+1;
@@ -1396,25 +1629,26 @@
                                         const dStr=annualYear+"-"+String(annualMonth+1).padStart(2,'0')+"-"+String(d).padStart(2,'0');
                                         const events=getAllEvents().filter(e=>e.date===dStr);
                                         const isToday=td.getFullYear()===annualYear&&td.getMonth()===annualMonth&&td.getDate()===d;
-                                        let bg='bg-slate-900/80 hover:bg-slate-700',text='text-slate-400';
-                                        if(isToday){bg='bg-cyan-500 rounded-lg';text='text-white font-bold';}
-                                        else if(events.some(e=>e.category==='academic')){bg='bg-red-900/80';text='text-white font-bold';}
-                                        else if(events.some(e=>e.category==='special')){bg='bg-pink-700/80';text='text-white font-bold';}
-                                        else if(events.some(e=>e.category==='official')){bg='bg-amber-700/80';text='text-white font-bold';}
-                                        else if(events.some(e=>e.category==='daily')){bg='bg-blue-900/80';text='text-white font-bold';}
+                                        let bg='rgba(13,21,38,0.5)',textColor='#475569',fw='400';
+                                        if(isToday){bg='#6366f1';textColor='white';fw='700';}
+                                        else if(events.some(e=>e.category==='academic')){bg='rgba(220,38,38,0.3)';textColor='#fca5a5';fw='700';}
+                                        else if(events.some(e=>e.category==='special')){bg='rgba(219,39,119,0.3)';textColor='#f9a8d4';fw='700';}
+                                        else if(events.some(e=>e.category==='official')){bg='rgba(34,197,94,0.28)';textColor='#86efac';fw='700';}
+                                        else if(events.some(e=>e.category==='google')){bg='rgba(180,83,9,0.3)';textColor='#fcd34d';fw='700';}
+                                        else if(events.some(e=>e.category==='daily')){bg='rgba(37,99,235,0.2)';textColor='#93c5fd';fw='700';}
                                         return(
-                                            <button key={d} onClick={()=>handleDayClick(dStr,events)} className={"h-11 flex flex-col items-center justify-center rounded text-xs "+bg+" "+text}>
+                                            <button key={d} onClick={()=>handleDayClick(dStr,events)} style={{height:'44px',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',borderRadius:'8px',fontSize:'12px',background:bg,color:textColor,fontWeight:fw,border:'none',cursor:'pointer'}}>
                                                 <span>{d}</span>
-                                                {events.length>0&&<span className="w-1 h-1 rounded-full bg-white/80 mt-0.5"></span>}
+                                                {events.length>0&&<span style={{width:'4px',height:'4px',borderRadius:'50%',background:'rgba(255,255,255,0.7)',marginTop:'2px',display:'block'}}></span>}
                                             </button>
                                         );
                                     })}
                                 </div>
-                                <div className="p-3 flex flex-wrap gap-2 border-t border-slate-700">
-                                    {[['bg-red-900','Akademik'],['bg-pink-700','Ozel'],['bg-amber-700','Resmi'],['bg-blue-900','Kisisel'],['bg-cyan-500','Bugun']].map(([c,l])=>(
-                                        <div key={l} className="flex items-center gap-1">
-                                            <div className={"w-3 h-3 rounded "+c}></div>
-                                            <span className="text-[10px] text-slate-400">{l}</span>
+                                <div style={{padding:'12px 16px',display:'flex',flexWrap:'wrap',gap:'10px',borderTop:'1px solid var(--border)'}}>
+                                    {[['rgba(220,38,38,0.4)','Akademik'],['rgba(219,39,119,0.4)','Özel'],['rgba(34,197,94,0.5)','Resmi'],['rgba(180,83,9,0.5)','Google'],['rgba(37,99,235,0.3)','Kişisel'],['#6366f1','Bugün']].map(([c,l])=>(
+                                        <div key={l} style={{display:'flex',alignItems:'center',gap:'4px'}}>
+                                            <div style={{width:'10px',height:'10px',borderRadius:'3px',background:c}}></div>
+                                            <span style={{fontSize:'10px',color:'#475569'}}>{t(l)}</span>
                                         </div>
                                     ))}
                                 </div>
@@ -1423,18 +1657,19 @@
                     )}
                         {/* SCHEDULE VIEW */}
                         {view === 'schedule' && (
-                            <div className="animate-enter glass rounded-xl overflow-hidden border border-slate-700">
-                                <div className="p-3 bg-slate-800/50 flex justify-between items-center no-screenshot">
-                                    <div className="text-xs font-bold text-slate-400 uppercase">Haftalık Program</div>
-                                    <div className="flex gap-1"><button onClick={() => sendToNative({type:'CONFIRM_DELETE_SCHEDULE'})} className="bg-red-700 text-white px-2 py-1.5 rounded text-[10px] font-bold flex items-center gap-1"><i className="fas fa-trash"></i> Sil</button><button onClick={exportScheduleToPDF} className="bg-blue-600 text-white px-3 py-1.5 rounded text-[10px] font-bold hover:bg-blue-500 flex items-center gap-1">
-                                        <i className="fas fa-camera"></i> Ekran Görüntüsü
-                                    </button></div>
+                            <div className="animate-enter" style={{background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'20px',overflow:'hidden'}}>
+                                <div style={{padding:'12px 16px',background:'var(--bg-elevated)',display:'flex',justifyContent:'space-between',alignItems:'center',borderBottom:'1px solid var(--border)'}} className="no-screenshot">
+                                    <div style={{fontSize:'11px',fontWeight:'700',color:'#475569',textTransform:'uppercase',letterSpacing:'1px'}}>{t('Haftalık Program')}</div>
+                                    <div style={{display:'flex',gap:'6px'}}>
+                                        <button onClick={() => sendToNative({type:'CONFIRM_DELETE_SCHEDULE'})} style={{background:'rgba(244,63,94,0.15)',border:'1px solid rgba(244,63,94,0.3)',color:'#f43f5e',padding:'5px 10px',borderRadius:'8px',fontSize:'10px',fontWeight:'700',display:'flex',alignItems:'center',gap:'4px',cursor:'pointer'}}><i className="fas fa-trash"></i> {t('Sil')}</button>
+                                        <button onClick={exportScheduleToPDF} style={{background:'rgba(99,102,241,0.15)',border:'1px solid rgba(99,102,241,0.3)',color:'#818cf8',padding:'5px 10px',borderRadius:'8px',fontSize:'10px',fontWeight:'700',display:'flex',alignItems:'center',gap:'4px',cursor:'pointer'}}><i className="fas fa-camera"></i> {t('Ekran Görüntüsü')}</button>
+                                    </div>
                                 </div>
                                 <div className="overflow-x-auto">
                                     <table className="w-full text-xs border-collapse">
                                         <thead className="bg-slate-900 text-slate-400">
                                             <tr>
-                                                <th className="p-2 w-16 border border-slate-800 text-center">Saat</th>
+                                                <th className="p-2 w-16 border border-slate-800 text-center">{t('Saat')}</th>
                                                 {Object.keys(schedule).map(d=><th key={d} className="p-2 min-w-[80px] border border-slate-800 text-center">{d.substring(0,3)}</th>)}
                                             </tr>
                                         </thead>
@@ -1485,7 +1720,45 @@
                         )}
                         
                         {/* PROMOTION VIEW */}
-                        {view === 'promotion' && (<div className="animate-enter pb-20"><div className="glass p-4 rounded-xl border border-blue-500/20"><div className="flex justify-between items-center mb-4"><h3 className="font-bold text-slate-300 text-sm">PUAN CETVELİ</h3><button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} className="text-[10px] bg-blue-600 text-white px-3 py-1.5 rounded hover:bg-blue-500"><i className="fas fa-plus mr-1"></i>Ekle</button></div><div className="grid grid-cols-12 gap-1 text-[9px] text-slate-500 uppercase font-bold px-1 mb-2"><div className="col-span-5">Faaliyet</div><div className="col-span-2 text-center">Puan</div><div className="col-span-2 text-center">Adet</div><div className="col-span-2 text-center">Top.</div><div className="col-span-1"></div></div><div className="space-y-2">{customScores.map(s => (<div key={s.id} className="grid grid-cols-12 gap-2 items-center bg-slate-900/50 p-2 rounded border border-slate-700"><div className="col-span-5"><input className="w-full bg-transparent text-sm text-slate-200 focus:outline-none placeholder-slate-600" placeholder="Faaliyet" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-slate-400 rounded p-1" value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} /></div><div className="col-span-2"><input type="number" className="w-full bg-slate-900 text-center text-xs text-white font-bold rounded p-1 border border-slate-600" value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} /></div><div className="col-span-2 text-center text-xs font-bold text-blue-400">{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div><div className="col-span-1 text-right"><button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} className="text-slate-600 hover:text-red-400"><i className="fas fa-trash-alt"></i></button></div></div>))}</div><div className="mt-6 bg-slate-900 p-4 rounded-xl border border-slate-700 shadow-xl"><div className="flex justify-between items-center mb-4"><span className="text-xs text-slate-400 uppercase font-bold">Hedef Puan:</span><input type="number" className="w-20 bg-slate-900 border border-slate-600 rounded p-1 text-center text-sm font-bold text-white focus:border-blue-500 outline-none" value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} /></div><div className="flex justify-between text-sm font-bold mb-2"><span className="text-slate-300">MEVCUT</span><span className={totalCalculated>=targetScore?"text-emerald-400":"text-rose-400"}>{totalCalculated} / {targetScore}</span></div><div className="h-3 bg-slate-900 rounded-full overflow-hidden mb-2 border border-slate-700/50"><div className={`h-full transition-all duration-1000 ${totalCalculated>=targetScore?'bg-emerald-500':'bg-gradient-to-r from-blue-600 to-red-600'}`} style={{width: `${Math.min((totalCalculated/targetScore)*100, 100)}%`}}></div></div></div></div></div>)}
+                        {view === 'promotion' && (
+                            <div className="animate-enter" style={{paddingBottom:'20px'}}>
+                                <div style={{background:'var(--bg-card)',border:'1px solid rgba(99,102,241,0.15)',borderRadius:'20px',padding:'16px'}}>
+                                    <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+                                        <h3 style={{fontWeight:'700',color:'#94a3b8',fontSize:'13px',textTransform:'uppercase',letterSpacing:'1px'}}>{t('Puan Cetveli')}</h3>
+                                        <button onClick={() => setCustomScores([...customScores, {id:Date.now(), name:"", value:0, count:0}])} style={{fontSize:'10px',background:'rgba(99,102,241,0.2)',border:'1px solid rgba(99,102,241,0.3)',color:'#818cf8',padding:'6px 12px',borderRadius:'8px',cursor:'pointer',fontWeight:'700'}}>
+                                            <i className="fas fa-plus" style={{marginRight:'4px'}}></i>{t('Ekle')}
+                                        </button>
+                                    </div>
+                                    <div style={{display:'grid',gridTemplateColumns:'5fr 2fr 2fr 2fr 1fr',gap:'4px',fontSize:'9px',color:'#475569',textTransform:'uppercase',fontWeight:'700',padding:'0 4px',marginBottom:'8px'}}>
+                                        <div>{t('Faaliyet')}</div><div style={{textAlign:'center'}}>{t('Puan')}</div><div style={{textAlign:'center'}}>{t('Adet')}</div><div style={{textAlign:'center'}}>{t('Top.')}</div><div></div>
+                                    </div>
+                                    <div style={{display:'flex',flexDirection:'column',gap:'6px'}}>
+                                        {customScores.map(s => (
+                                            <div key={s.id} style={{display:'grid',gridTemplateColumns:'5fr 2fr 2fr 2fr 1fr',gap:'4px',alignItems:'center',background:'rgba(6,11,24,0.6)',padding:'8px',borderRadius:'10px',border:'1px solid var(--border)'}}>
+                                                <input className="input-dark" style={{background:'transparent',border:'none',fontSize:'13px',color:'#e2e8f0',padding:'0',boxShadow:'none',borderRadius:'0'}} placeholder="Faaliyet" value={s.name} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,name:e.target.value}:x))} />
+                                                <input type="number" style={{background:'rgba(6,11,24,0.8)',border:'1px solid var(--border)',borderRadius:'6px',textAlign:'center',fontSize:'11px',color:'#94a3b8',padding:'4px',width:'100%'}} value={s.value} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,value:e.target.value}:x))} />
+                                                <input type="number" style={{background:'rgba(6,11,24,0.8)',border:'1px solid rgba(99,102,241,0.3)',borderRadius:'6px',textAlign:'center',fontSize:'11px',color:'white',fontWeight:'700',padding:'4px',width:'100%'}} value={s.count} onChange={e=>setCustomScores(customScores.map(x=>x.id===s.id?{...x,count:e.target.value}:x))} />
+                                                <div style={{textAlign:'center',fontSize:'12px',fontWeight:'700',color:'#818cf8'}}>{(parseInt(s.value)||0) * (parseInt(s.count)||0)}</div>
+                                                <button onClick={()=>setCustomScores(customScores.filter(x=>x.id!==s.id))} style={{background:'none',border:'none',color:'#475569',cursor:'pointer',display:'flex',justifyContent:'flex-end'}}><i className="fas fa-trash-alt" style={{fontSize:'12px'}}></i></button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div style={{marginTop:'20px',background:'rgba(6,11,24,0.8)',padding:'16px',borderRadius:'14px',border:'1px solid var(--border)'}}>
+                                        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'16px'}}>
+                                            <span style={{fontSize:'11px',color:'#475569',textTransform:'uppercase',fontWeight:'700'}}>{t('Hedef Puan:')}</span>
+                                            <input type="number" className="input-dark" style={{width:'80px',padding:'6px 8px',textAlign:'center',fontSize:'14px',fontWeight:'700'}} value={targetScore} onChange={e => setTargetScore(parseInt(e.target.value)||0)} />
+                                        </div>
+                                        <div style={{display:'flex',justifyContent:'space-between',fontSize:'14px',fontWeight:'700',marginBottom:'8px'}}>
+                                            <span style={{color:'#94a3b8'}}>{t('MEVCUT')}</span>
+                                            <span style={{color:totalCalculated>=targetScore?'#10b981':'#f43f5e'}}>{totalCalculated} / {targetScore}</span>
+                                        </div>
+                                        <div style={{height:'10px',background:'rgba(6,11,24,0.9)',borderRadius:'6px',overflow:'hidden',border:'1px solid var(--border)'}}>
+                                            <div style={{height:'100%',width:`${Math.min((totalCalculated/targetScore)*100,100)}%`,background:totalCalculated>=targetScore?'#10b981':'linear-gradient(90deg,#6366f1,#f43f5e)',transition:'width 1s ease',borderRadius:'6px'}}></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                     </div>
 
                     {/* SCREENSHOT MODE */}
@@ -1538,7 +1811,7 @@
 
                     {/* ALT NAVİGASYON */}
                     <div className="fixed bottom-0 w-full max-w-md bg-slate-900/95 backdrop-blur border-t border-slate-800 flex justify-around py-4 pb-8 z-50 no-screenshot">
-                        {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(t => (<button key={t.id} onClick={() => navigateTo(t.id)} className={`flex flex-col items-center gap-1 ${view === t.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${t.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t.label}</span></button>))}
+                        {[{id: 'flow', icon: 'stream', label: 'Akış'},{id: 'home', icon: 'home', label: 'Ana Sayfa'},{id: 'schedule', icon: 'table', label: 'Ders'},{id: 'annual', icon: 'calendar-alt', label: 'Yıllık'},{id: 'promotion', icon: 'chart-pie', label: 'Puan'}].map(nav => (<button key={nav.id} onClick={() => navigateTo(nav.id)} className={`flex flex-col items-center gap-1 ${view === nav.id ? 'text-blue-400' : 'text-slate-500 hover:text-slate-400'}`}><i className={`fas fa-${nav.icon} text-lg`}></i><span className="text-[10px] uppercase font-bold">{t(nav.label)}</span></button>))}
                     </div>
 
                     {/* POMODORO BUTTON */}
@@ -1549,7 +1822,7 @@
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-white font-bold">Önemli Akademik Linkler</h3>
+                                    <h3 className="text-white font-bold">{t('Önemli Akademik Linkler')}</h3>
                                     <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white">
                                         <i className="fas fa-times"></i>
                                     </button>
@@ -1732,7 +2005,7 @@
                                         }}
                                         className="w-full bg-slate-700 hover:bg-slate-600 border border-dashed border-slate-500 text-slate-300 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition"
                                     >
-                                        <i className="fas fa-plus"></i> Yeni Link Ekle
+                                        <i className="fas fa-plus"></i> {t('Yeni Link Ekle')}
                                     </button>
                                 </div>
                             </div> {/* fixed inset-0 div'ini kapatır */}
@@ -1744,7 +2017,7 @@
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-white font-bold">Akademik Takvim</h3>
+                                    <h3 className="text-white font-bold">{t('Akademik Takvim')}</h3>
                                     <button onClick={() => setActiveModal(null)} className="text-slate-400 hover:text-white">
                                         <i className="fas fa-times"></i>
                                     </button>
@@ -1794,11 +2067,11 @@
                     {activeModal === 'addLesson' && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot overflow-y-auto">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl my-8">
-                                <h3 className="text-white font-bold mb-4 text-lg">Yeni Ders Ekle</h3>
+                                <h3 className="text-white font-bold mb-4 text-lg">{t('Yeni Ders Ekle')}</h3>
                                 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Ders Adı *</label>
+                                        <label className="text-xs text-slate-400 block mb-1">{t('Ders Adı *')}</label>
                                         <input 
                                             className="w-full input-dark p-3 rounded" 
                                             placeholder="örn: Algoritma ve Veri Yapıları"
@@ -1808,7 +2081,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Ders Tipi *</label>
+                                        <label className="text-xs text-slate-400 block mb-1">{t('Ders Tipi *')}</label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {Object.entries(LESSON_TYPES).map(([k, v]) => (
                                                 <button 
@@ -1816,7 +2089,7 @@
                                                     onClick={() => setLessonType(k)} 
                                                     className={`p-3 rounded border text-xs font-bold transition ${lessonType === k ? 'ring-2 ring-white scale-105' : 'opacity-70'} ${v.btnClass}`}
                                                 >
-                                                    {v.label}
+                                                    {t(v.label)}
                                                 </button>
                                             ))}
                                         </div>
@@ -1824,12 +2097,12 @@
 
                                     <div>
                                         <div className="flex justify-between items-center mb-2">
-                                            <label className="text-xs text-slate-400">Zaman Dilimleri ({lessonSlots.length})</label>
+                                            <label className="text-xs text-slate-400">{t('Zaman Dilimleri')} ({lessonSlots.length})</label>
                                             <button 
                                                 onClick={addLessonSlot}
                                                 className="text-xs bg-emerald-600 text-white px-3 py-1 rounded hover:bg-emerald-500"
                                             >
-                                                <i className="fas fa-plus mr-1"></i>Ekle
+                                                <i className="fas fa-plus mr-1"></i>{t('Ekle')}
                                             </button>
                                         </div>
                                         
@@ -1854,7 +2127,7 @@
                                                             value={slot.day}
                                                             onChange={(e) => updateLessonSlot(slot.id, 'day', e.target.value)}
                                                         >
-                                                            {DAYS_TR.map(day => <option key={day} value={day}>{day}</option>)}
+                                                            {DAYS_TR.map(day => <option key={day} value={day}>{t(day)}</option>)}
                                                         </select>
                                                         
                                                         <div className="grid grid-cols-2 gap-2">
@@ -1914,7 +2187,7 @@
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[85vh] overflow-y-auto">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h3 className="text-white font-bold flex items-center gap-2"><i className="fas fa-robot text-violet-400"></i> AI Araçları</h3>
+                                    <h3 className="text-white font-bold flex items-center gap-2"><i className="fas fa-robot text-violet-400"></i> {t('AI Araçları')}</h3>
                                     <button onClick={() => { setActiveModal(null); setEditingAiLinkId(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button>
                                 </div>
                                 
@@ -1982,7 +2255,7 @@
                                         }}
                                         className="w-full bg-slate-700 hover:bg-slate-600 border border-dashed border-slate-500 text-slate-300 py-3 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition mb-3"
                                     >
-                                        <i className="fas fa-plus"></i> Yeni AI Aracı Ekle
+                                        <i className="fas fa-plus"></i> {t('Yeni AI Aracı Ekle')}
                                     </button>
                                     <p className="text-[10px] text-slate-500 text-center"><i className="fas fa-info-circle mr-1"></i>Buton üzerinde kaydırarak düzenle ikonuna ulaşabilirsiniz</p>
                                 </div>
@@ -2000,41 +2273,45 @@
                         />
                     )}
 
-                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">Ayarlar</h3><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">Unvan</label><select name="title" defaultValue={user.title} className="w-full input-dark p-3 rounded-lg">{TITLES.map(t=><option key={t} value={t}>{t}</option>)}</select></div><div><label className="text-xs text-slate-400">Ad Soyad</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">Üniversite</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">Namaz Vakitlerini Göster</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">Kaydet</button></form><hr className="border-slate-700 my-4" />
+                    {activeModal === 'settings' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl relative"><button onClick={() => setActiveModal(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white"><i className="fas fa-times"></i></button><h3 className="text-white font-bold mb-4">{t('Ayarlar')}</h3><div className="mb-4"><label className="text-xs text-slate-400 block mb-2">🌐 {t('Dil')}</label><div className="grid grid-cols-2 gap-2"><button onClick={() => setLanguage('tr')} className={`p-2 rounded text-xs font-bold border transition ${language==='tr' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}>🇹🇷 Türkçe</button><button onClick={() => setLanguage('en')} className={`p-2 rounded text-xs font-bold border transition ${language==='en' ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}>🇬🇧 English</button></div></div><hr className="border-slate-700 my-4" /><form onSubmit={handleUpdateUser} className="space-y-4"><div><label className="text-xs text-slate-400">{t('Unvan')}</label><select name="title" defaultValue={user.title} className="w-full input-dark p-3 rounded-lg">{TITLES.map(ti=><option key={ti} value={ti}>{ti}</option>)}</select></div><div><label className="text-xs text-slate-400">{t('Ad Soyad')}</label><input name="name" defaultValue={user.name} required className="w-full input-dark p-3 rounded-lg" /></div><div><label className="text-xs text-slate-400">{t('Üniversite')}</label><select name="uni" defaultValue={user.uni} className="w-full input-dark p-3 rounded-lg">{UNIVERSITIES.map(u => <option key={u.name} value={u.name}>{u.name}</option>)}</select></div><div className="flex items-center gap-3 pt-2"><input type="checkbox" name="enablePrayer" defaultChecked={user.enablePrayer} className="w-5 h-5 accent-blue-500" /><span className="text-sm text-slate-300">{t('Namaz Vakitlerini Göster')}</span></div><button className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-500">{t('Kaydet')}</button></form><hr className="border-slate-700 my-4" />
                                 <div className="mb-4">
-                                    <label className="text-xs text-slate-400 block mb-2">🔔 Bildirim Sesi</label>
+                                    <label className="text-xs text-slate-400 block mb-2">🔔 {t('Bildirim Sesi')}</label>
                                     <div className="grid grid-cols-2 gap-2">
                                         {[
-                                            {id:'default', label:'🔔 Varsayılan'},
-                                            {id:'alarm', label:'⏰ Alarm'},
-                                            {id:'chime', label:'🎵 Çan'},
-                                            {id:'silent', label:'🔇 Sessiz'},
+                                            {id:'default', icon:'🔔', label:'Varsayılan'},
+                                            {id:'alarm', icon:'⏰', label:'Alarm'},
+                                            {id:'chime', icon:'🎵', label:'Çan'},
+                                            {id:'silent', icon:'🔇', label:'Sessiz'},
                                         ].map(s => (
-                                            <button 
+                                            <button
                                                 key={s.id}
                                                 onClick={() => { setNotifSound(s.id); sendToNative({type:'SET_NOTIF_SOUND', sound: s.id}); }}
                                                 className={`p-2 rounded text-xs font-bold border transition ${notifSound===s.id ? 'bg-blue-600 border-blue-500 text-white' : 'bg-slate-700 border-slate-600 text-slate-300 hover:bg-slate-600'}`}
-                                            >{s.label}</button>
+                                            >{s.icon} {t(s.label)}</button>
                                         ))}
                                     </div>
                                 </div>
-                                <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">Yedek İndir (.json)</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">Yedek Yükle</button></div></div></div>)}
+                                <hr className="border-slate-700 my-4" /><div className="flex gap-2"><button onClick={exportData} className="flex-1 bg-green-900/50 border border-green-800 text-green-100 text-xs py-2 rounded hover:bg-green-800">{t('Yedek İndir (.json)')}</button><button onClick={importData} className="flex-1 bg-blue-900/50 border border-blue-800 text-blue-100 text-xs py-2 rounded hover:bg-blue-800">{t('Yedek Yükle')}</button></div><div className="flex gap-2 mt-2">
+  <button onClick={()=>{if(window.confirm('Tüm etkinlikler Google Calendar\'a aktarılsın mı?')){sendToNative({type:'SYNC_ALL_TO_CALENDAR',tasks:tasks.filter(t=>t.date&&t.title)});}}} className="flex-1 bg-indigo-900/50 border border-indigo-700 text-indigo-200 text-xs py-2 rounded hover:bg-indigo-800 flex items-center justify-center gap-1"><i className="fab fa-google"></i> Calendar\'a Aktar</button>
+  <button onClick={()=>{sendToNative({type:'PULL_FROM_CALENDAR'});}} className="flex-1 bg-purple-900/50 border border-purple-700 text-purple-200 text-xs py-2 rounded hover:bg-purple-800 flex items-center justify-center gap-1"><i className="fas fa-cloud-download-alt"></i> Calendar\'dan Çek</button>
+</div>
+{googleEvents.length > 0 && <p className="text-[10px] text-slate-500 mt-1 text-center">{googleEvents.length} Google etkinliği senkronize • <button onClick={()=>{if(window.confirm('Google etkinlikleri temizlensin mi?')){setGoogleEvents([]);}}} className="text-red-500 underline">Temizle</button></p>}</div></div>)}
                     
                     {/* GÖREV EKLEME/DÜZENLEME MODAL */}
-                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? 'Görevi Düzenle' : 'Yeni Hatırlatıcı'}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder="Başlık" value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">Gündelik İş (Mavi)</option><option value="academic">Akademik (Kırmızı)</option><option value="official">Resmi Toplantı (Sarı)</option><option value="special">Özel Gün (Pembe - Yıllık Tekrar)</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder="Açıklama..." value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">Rutin Tekrar Seçeneği</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">Tekrar Yok</option><option value="weekly">Haftalık</option><option value="biweekly">İki Haftada Bir</option><option value="monthly">Aylık</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">Kaç Kez?</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">12 ay boyunca her ay tekrarlanacak</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>Özel günler her yıl otomatik olarak tekrarlanır</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily"}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">İptal</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ Yine de Ekle?' : (editingTask ? 'Güncelle' : 'Kaydet')}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
+                    {activeModal === 'task' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto"><h3 className="text-white font-bold mb-4">{editingTask ? t('Görevi Düzenle') : t('Yeni Hatırlatıcı')}</h3><div className="space-y-3"><input className="w-full input-dark p-3 rounded" placeholder={t('Başlık')} value={newTask.title} onChange={e=>{setNewTask({...newTask,title:e.target.value}); setConflictWarn(null);}} /><div className="grid grid-cols-2 gap-2"><select className="w-full input-dark p-3 rounded" value={newTask.category} onChange={e=>setNewTask({...newTask,category:e.target.value})}><option value="daily">{t('Gündelik İş (Mavi)')}</option><option value="academic">{t('Akademik (Kırmızı)')}</option><option value="official">{t('Resmi Toplantı (Yeşil)')}</option><option value="special">{t('Özel Gün (Pembe - Yıllık Tekrar)')}</option></select><input type="time" className="w-full input-dark p-3 rounded" value={newTask.time} onChange={e=>{setNewTask({...newTask,time:e.target.value}); setConflictWarn(null);}} /></div><div className="grid grid-cols-2 gap-2"><div><label className="text-xs text-slate-400 block mb-1">{t('Başlangıç Tarihi')}</label><input type="date" className="w-full input-dark p-3 rounded" value={newTask.date} onChange={e=>{setNewTask({...newTask,date:e.target.value}); setConflictWarn(null);}} /></div><div><label className="text-xs text-slate-400 block mb-1">{t('Bitiş Tarihi')} <span className="text-slate-500">{t('(opsiyonel)')}</span></label><input type="date" className="w-full input-dark p-3 rounded" value={newTask.endDate||""} min={newTask.date||""} onChange={e=>setNewTask({...newTask,endDate:e.target.value})} /></div></div><textarea className="w-full input-dark p-3 rounded h-20 resize-none" placeholder={t('Açıklama...')} value={newTask.desc} onChange={e=>setNewTask({...newTask,desc:e.target.value})}></textarea>{newTask.category !== 'special' && (<div className="bg-slate-900/50 p-3 rounded-lg border border-slate-700"><div className="mb-2"><span className="text-xs text-slate-300 font-bold">{t('Rutin Tekrar Seçeneği')}</span></div><select className="w-full input-dark p-2 rounded text-sm" value={recurringType} onChange={e=>setRecurringType(e.target.value)} disabled={!!editingTask}><option value="none">{t('Tekrar Yok')}</option><option value="weekly">{t('Haftalık')}</option><option value="biweekly">{t('İki Haftada Bir')}</option><option value="monthly">{t('Aylık')}</option></select>{recurringType !== "none" && recurringType !== "monthly" && (<div className="flex items-center gap-2 mt-2 animate-enter"><span className="text-[10px] text-slate-400">{t('Kaç Kez?')}</span><input type="number" value={recurringWeeks} onChange={e=>setRecurringWeeks(parseInt(e.target.value))} className="w-16 bg-slate-900 border border-slate-600 rounded p-1 text-center text-white text-xs" /></div>)}{recurringType === "monthly" && (<p className="text-[10px] text-slate-400 mt-2">{t('12 ay boyunca her ay tekrarlanacak')}</p>)}</div>)}{newTask.category === 'special' && (<div className="bg-pink-900/20 p-3 rounded-lg border border-pink-700"><p className="text-xs text-pink-300"><i className="fas fa-info-circle mr-1"></i>{t('Özel günler her yıl otomatik olarak tekrarlanır')}</p></div>)}</div><div className="flex gap-2 mt-4"><button onClick={()=>{setActiveModal(null); setEditingTask(null); setNewTask({title:"", date:"", time:"", desc:"", type:"task", category:"daily", endDate:""}); setRecurringType("none");}} className="flex-1 py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600">{t('İptal')}</button><button onClick={handleAddTask} className={`flex-1 py-3 rounded text-white font-bold transition ${conflictWarn ? 'bg-red-600 hover:bg-red-700 animate-pulse' : 'bg-blue-600 hover:bg-blue-500'}`}>{conflictWarn ? '⚠️ ' + t('Yine de Ekle?') : (editingTask ? t('Güncelle') : t('Kaydet'))}</button></div>{conflictWarn && <div className="mt-2 text-center text-xs text-red-300 bg-red-900/20 p-2 rounded">{conflictWarn}</div>}</div></div>)}
                     
                     {/* NOTLAR MODAL */}
-                    {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">Not Defteri</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder="Notunuz..." value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
+                    {activeModal === 'notes' && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl h-[60vh] flex flex-col"><div className="flex justify-between mb-4"><h3 className="text-white font-bold">{t('Not Defteri')}</h3><button onClick={()=>setActiveModal(null)}><i className="fas fa-times text-slate-400"></i></button></div><div className="flex gap-2 mb-4"><input className="flex-1 input-dark p-2 rounded" placeholder={t('Notunuz...')} value={newNote} onChange={e=>setNewNote(e.target.value)} /><button onClick={handleAddNote} className="bg-blue-600 px-4 rounded text-white"><i className="fas fa-plus"></i></button></div><div className="flex-1 overflow-y-auto space-y-2">{notes.map(n=><div key={n.id} className="bg-slate-700 p-3 rounded flex justify-between items-start"><div><p className="text-sm text-white">{n.text}</p><p className="text-[10px] text-slate-400">{n.date}</p></div><button onClick={()=>setNotes(notes.filter(x=>x.id!==n.id))} className="text-red-400"><i className="fas fa-trash"></i></button></div>)}</div></div></div>)}
                     
                     {/* DERS DÜZENLEME MODALI */}
                     {activeModal === 'lesson' && editingLesson && (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-enter no-screenshot">
                             <div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[90vh] overflow-y-auto">
-                                <h3 className="text-white font-bold mb-4">Ders Düzenle</h3>
+                                <h3 className="text-white font-bold mb-4">{t('Ders Düzenle')}</h3>
                                 
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Ders Adı</label>
+                                        <label className="text-xs text-slate-400 block mb-1">{t('Ders Adı')}</label>
                                         <input 
                                             className="w-full input-dark p-3 rounded" 
                                             value={editingLesson.data.name} 
@@ -2044,7 +2321,7 @@
 
                                     <div className="grid grid-cols-2 gap-2">
                                         <div>
-                                            <label className="text-xs text-slate-400 block mb-1">Başlangıç</label>
+                                            <label className="text-xs text-slate-400 block mb-1">{t('Başlangıç')}</label>
                                             <input 
                                                 type="time" 
                                                 className="w-full input-dark p-3 rounded" 
@@ -2053,7 +2330,7 @@
                                             />
                                         </div>
                                         <div>
-                                            <label className="text-xs text-slate-400 block mb-1">Bitiş</label>
+                                            <label className="text-xs text-slate-400 block mb-1">{t('Bitiş')}</label>
                                             <input 
                                                 type="time" 
                                                 className="w-full input-dark p-3 rounded" 
@@ -2064,7 +2341,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Sınıf/Derslik</label>
+                                        <label className="text-xs text-slate-400 block mb-1">{t('Sınıf/Derslik')}</label>
                                         <input 
                                             className="w-full input-dark p-3 rounded" 
                                             placeholder="örn: A101" 
@@ -2074,7 +2351,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Süre (Saat)</label>
+                                        <label className="text-xs text-slate-400 block mb-1">{t('Süre (Saat)')}</label>
                                         <input 
                                             type="number" 
                                             min="1" 
@@ -2086,7 +2363,7 @@
                                     </div>
 
                                     <div>
-                                        <label className="text-xs text-slate-400 block mb-1">Tür (Renk Seçimi)</label>
+                                        <label className="text-xs text-slate-400 block mb-1">{t('Tür (Renk Seçimi)')}</label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {Object.entries(LESSON_TYPES).map(([k,v])=>(
                                                 <button 
@@ -2094,7 +2371,7 @@
                                                     onClick={()=>setEditingLesson({...editingLesson,data:{...editingLesson.data,type:k}})} 
                                                     className={`p-2 rounded border text-xs font-bold transition ${editingLesson.data.type===k?'ring-2 ring-white scale-105':'opacity-80'} ${v.btnClass}`}
                                                 >
-                                                    {v.label}
+                                                    {t(v.label)}
                                                 </button>
                                             ))}
                                         </div>
@@ -2106,19 +2383,19 @@
                                         onClick={() => {setActiveModal(null); setEditingLesson(null);}}
                                         className="py-3 rounded bg-slate-700 text-slate-400 hover:bg-slate-600"
                                     >
-                                        Vazgeç
+                                        {t('Vazgeç')}
                                     </button>
-                                    <button 
-                                        onClick={deleteLesson} 
+                                    <button
+                                        onClick={deleteLesson}
                                         className="py-3 rounded bg-red-900/50 text-red-400 hover:bg-red-900/70 border border-red-800"
                                     >
-                                        Sil
+                                        {t('Sil')}
                                     </button>
-                                    <button 
-                                        onClick={saveLesson} 
+                                    <button
+                                        onClick={saveLesson}
                                         className="py-3 rounded bg-blue-600 text-white font-bold hover:bg-blue-500"
                                     >
-                                        Kaydet
+                                        {t('Kaydet')}
                                     </button>
                                 </div>
                             </div>
@@ -2126,7 +2403,13 @@
                     )}
                     
                     {/* GÜN DETAY MODALI */}
-                    {activeModal === 'dayDetail' && dayDetailData && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto"><div className="flex justify-between items-center mb-4"><h3 className="text-white font-bold">{dayDetailData.date} Detayı</h3><button onClick={() => { setActiveModal(null); setDayDetailData(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button></div><div className="space-y-3">{dayDetailData.events.map((ev, i) => (<div key={i} className={`p-3 rounded border-l-4 flex justify-between items-center ${ev.category==='academic'?'bg-red-900/30 border-red-500': ev.category==='official'?'bg-amber-900/30 border-amber-500': ev.category==='special'?'bg-pink-900/30 border-pink-500':'bg-blue-900/30 border-blue-500'}`} onClick={() => { if(ev.origin === 'personal' && !ev.isRecurring) { openEditTask(ev); setDayDetailData(null); } }}><div><div className="text-sm font-bold text-white">{ev.event}{ev.isRecurring && <span className="text-[10px] ml-2 bg-pink-600 px-2 py-0.5 rounded">Döngüsel</span>}</div>{ev.time && <div className="text-xs text-slate-400 mt-1"><i className="far fa-clock mr-1"></i>{ev.time}</div>}<div className="text-[10px] text-slate-500 mt-1 uppercase">{ev.origin}</div></div>{ev.origin === 'personal' && !ev.isRecurring && <button onClick={(e) => deleteTask(e, ev.id)} className="text-red-400 hover:text-red-300 px-2 ml-2"><i className="fas fa-trash"></i></button>}</div>))}</div><div className="mt-6 pt-4 border-t border-slate-700"><button onClick={() => { setNewTask({ title: "", date: dayDetailData.date, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); }} className="w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-600 transition flex items-center justify-center gap-2"><i className="fas fa-plus"></i> Bu Güne Hatırlatıcı Ekle</button></div></div></div>)}
+                    {activeModal === 'dayDetail' && dayDetailData && (<div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[70] flex items-center justify-center p-4 animate-enter no-screenshot"><div className="bg-slate-800 w-full max-w-sm rounded-2xl p-6 border border-slate-700 shadow-2xl max-h-[80vh] overflow-y-auto"><div className="flex justify-between items-center mb-4"><h3 className="text-white font-bold">{dayDetailData.date} {t('Detayı')}</h3><button onClick={() => { setActiveModal(null); setDayDetailData(null); }} className="text-slate-400 hover:text-white"><i className="fas fa-times"></i></button></div><div className="space-y-3">{dayDetailData.events.map((ev, i) => (<div key={i} className={`p-3 rounded border-l-4 flex justify-between items-center ${ev.category==='academic'?'bg-red-900/30 border-red-500': ev.category==='official'?'bg-green-900/30 border-green-500': ev.category==='google'?'bg-amber-900/30 border-amber-500': ev.category==='special'?'bg-pink-900/30 border-pink-500':'bg-blue-900/30 border-blue-500'}`} onClick={() => { if(ev.origin === 'personal' && !ev.isRecurring) { openEditTask(ev); setDayDetailData(null); } }}><div><div className="text-sm font-bold text-white">{ev.event}{ev.isRecurring && <span className="text-[10px] ml-2 bg-pink-600 px-2 py-0.5 rounded">{t('Döngüsel')}</span>}</div>{ev.time && <div className="text-xs text-slate-400 mt-1"><i className="far fa-clock mr-1"></i>{ev.time}</div>}<div className="text-[10px] text-slate-500 mt-1 uppercase">{ev.origin}</div></div><div className="flex flex-col gap-1 ml-2">
+  {ev.isGoogleEvent
+    ? <span className="text-[10px] text-indigo-400 bg-indigo-900/30 border border-indigo-800 px-2 py-1 rounded flex items-center gap-1"><i className="fab fa-google"></i>Google</span>
+    : <button onClick={(e)=>{e.stopPropagation(); sendToNative({type: ev.calendarEventId ? 'UPDATE_CALENDAR_EVENT' : 'ADD_TO_CALENDAR', event: ev.calendarEventId ? ev : {id:ev.id,title:ev.event||ev.title,date:ev.date||dayDetailData.date,time:ev.time||'',desc:ev.desc||''}, [ev.calendarEventId?'event':'event']: {id:ev.id,title:ev.event||ev.title,date:ev.date||dayDetailData.date,time:ev.time||'',desc:ev.desc||'',calendarEventId:ev.calendarEventId}});}} className={`text-xs px-2 py-1 rounded border flex items-center gap-1 ${ev.calendarEventId ? 'text-green-400 bg-green-900/30 border-green-800' : 'text-indigo-400 bg-indigo-900/30 border-indigo-800'}`}><i className="fab fa-google"></i>{ev.calendarEventId ? '✓' : 'Ekle'}</button>
+  }
+  {ev.origin === 'personal' && !ev.isRecurring && !ev.isGoogleEvent && <button onClick={(e) => deleteTask(e, ev.id)} className="text-red-400 hover:text-red-300 text-xs px-2 py-1 bg-red-900/30 rounded border border-red-900"><i className="fas fa-trash"></i></button>}
+</div></div>))}</div><div className="mt-6 pt-4 border-t border-slate-700"><button onClick={() => { setNewTask({ title: "", date: dayDetailData.date, time: "09:00", desc: "", type: "task", category: "daily" }); setActiveModal('task'); }} className="w-full bg-slate-700 text-white py-2 rounded-lg text-sm hover:bg-slate-600 transition flex items-center justify-center gap-2"><i className="fas fa-plus"></i> {t('Bu Güne Hatırlatıcı Ekle')}</button></div></div></div>)}
                 </div>
             );
         }; // App fonksiyon kapanışı
